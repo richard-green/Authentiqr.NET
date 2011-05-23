@@ -1,0 +1,11 @@
+A simple system-tray application allowing you easy access to the 2-step authentication auto-generated security keys for Google Apps.
+
+Run the program and a little padlock icon appears in the system tray. The context menu lets you enter your secure password obtained from here:
+
+https://www.google.com/accounts/SmsAuthConfig
+
+Follow this process, and when you get the QR code displayed, click the link saying you had trouble reading it, and then copy/paste the value into this application.
+
+Every 30 seconds a new code will be generated, which you can get simply by going to the context menu and clicking on the numbers at the top. This will copy the value into your clipboard.
+
+Have fun!
