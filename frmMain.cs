@@ -44,6 +44,10 @@ namespace LCGoogleApps
 			}
 		}
 
+		protected Dictionary<string, string> Accounts = new Dictionary<string,string>();
+
+		private List<ToolStripItem> TimeoutMenuItems = new List<ToolStripItem>();
+
 		#endregion Properties
 
 		#region Constructor
@@ -72,43 +76,101 @@ namespace LCGoogleApps
 
 		private void frmMain_Load(object sender, EventArgs e)
 		{
-			// Get password from App.config
-			DecryptConfigSection("appSettings");
-			var passwordSection = Config.AppSettings.Settings["password"];
+			var passwordSection = Config.AppSettings.Settings["encPass"];
 
 			if (passwordSection != null)
 			{
-				string password = Config.AppSettings.Settings["password"].Value;
-				SetPassword(password);
+				// Single Account
+
+				string password = DecryptData(passwordSection.Value);
+
+				Accounts.Add("Default Account", password);
+				InitAccount("Default Account", password);
+
+				Config.AppSettings.Settings.Remove("encPass");
+				UpdateConfig();
 			}
 			else
 			{
-				mnuPassCode.Visible = false;
-				tmrMain.Enabled = false;
+				// Multiple Accounts
+
+				var accountsSection = Config.AppSettings.Settings["encAccounts"];
+
+				if (accountsSection != null)
+				{
+					Accounts = ParseAccountsData(DecryptData(accountsSection.Value));
+
+					foreach (var account in Accounts)
+					{
+						InitAccount(account.Key, account.Value);
+					}
+				}
 			}
 		}
 
 		private void tmrMain_Tick(object sender, EventArgs e)
 		{
-			mnuPassCode.Text = Generator.GenerateTimeoutCode();
+			foreach (var item in TimeoutMenuItems)
+			{
+				item.Text = Generator.GenerateTimeoutCode(item.Tag as string);
+			}
 		}
 
 		#endregion .NET Events
 
 		#region User Events
 
-		private void mnuPassCode_Click(object sender, EventArgs e)
+		private void mnuTimeoutMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetText(mnuPassCode.Text);
+			ToolStripItem item = sender as ToolStripItem;
+			Clipboard.SetText(item.Text);
 		}
 
-		private void mnuSetKey_Click(object sender, EventArgs e)
+		private void mnuAccount_Click(object sender, EventArgs e)
 		{
-			InputBoxResult result = InputBox.Show(this, "Enter new key:");
-			if (result.ReturnCode == System.Windows.Forms.DialogResult.OK)
+			ToolStripItem accountMenuItem = sender as ToolStripItem;
+			string oldAccountName = accountMenuItem.Text;
+			ToolStripItem timeoutMenuItem = accountMenuItem.Tag as ToolStripItem;
+			string oldPassword = timeoutMenuItem.Tag as string;
+
+			using (frmAddAccount form = new frmAddAccount())
 			{
-				string password = Regex.Replace(result.Text, "\\s", "");
-				ChangePassword(password);
+				form.AccountName = oldAccountName;
+				form.SetKey(oldPassword);
+				DialogResult result = form.ShowDialog(this);
+
+				if (result == DialogResult.OK)
+				{
+					Accounts.Remove(oldAccountName);
+
+					string password = Regex.Replace(form.Key, "\\s", "");
+					string accountName = form.AccountName;
+
+					Accounts[accountName] = password;
+					UpdateConfig();
+
+					accountMenuItem.Text = accountName;
+					timeoutMenuItem.Tag = password;
+				}
+			}
+		}
+
+		private void mnuAddAccount_Click(object sender, EventArgs e)
+		{
+			using (frmAddAccount form = new frmAddAccount())
+			{
+				DialogResult result = form.ShowDialog(this);
+
+				if (result == DialogResult.OK)
+				{
+					string password = Regex.Replace(form.Key, "\\s", "");
+					string accountName = form.AccountName;
+
+					Accounts[accountName] = password;
+					UpdateConfig();
+
+					InitAccount(accountName, password);
+				}
 			}
 		}
 
@@ -121,79 +183,95 @@ namespace LCGoogleApps
 
 		#region Methods
 
-		private void EncryptConfigSection(string sectionKey)
+		private void InitAccount(string accountName, string key)
 		{
-			ConfigurationSection section = Config.GetSection(sectionKey);
-			if (section != null)
+			ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, null, mnuAccount_Click);
+			ToolStripItem timeoutMenuItem = new ToolStripMenuItem(Generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
+			ToolStripItem separator = new ToolStripSeparator();
+			
+			TimeoutMenuItems.Add(timeoutMenuItem);
+
+			accountMenuItem.Tag = timeoutMenuItem;
+			timeoutMenuItem.Tag = key;
+
+			ContextMenu.Items.Insert(0, separator);
+			ContextMenu.Items.Insert(0, timeoutMenuItem);
+			ContextMenu.Items.Insert(0, accountMenuItem);
+
+			tmrMain.Enabled = true;
+		}
+
+		private Dictionary<string, string> ParseAccountsData(string data)
+		{
+			if (String.IsNullOrEmpty(data))
 			{
-				if (!section.SectionInformation.IsProtected)
+				return new Dictionary<string, string>();
+			}
+			else
+			{
+				Dictionary<string, string> output = new Dictionary<string, string>();
+				string[] accountData = data.Split('*');
+
+				foreach (var account in accountData)
 				{
-					if (!section.ElementInformation.IsLocked)
-					{
-						section.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
-						section.SectionInformation.ForceSave = true;
-						config.Save(ConfigurationSaveMode.Full);
-					}
+					string[] kvp = account.Split('@');
+					kvp[0] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[0]));
+					kvp[1] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[1]));
+					output[kvp[0]] = kvp[1];
 				}
+
+				return output;
 			}
 		}
 
-		private void DecryptConfigSection(string sectionKey)
+		private string GenerateAccountsData(Dictionary<string, string> accounts)
 		{
-			ConfigurationSection section = Config.GetSection(sectionKey);
-			if (section != null)
+			string[] accountData = new string[accounts.Count];
+			int i = 0;
+
+			foreach (var account in accounts)
 			{
-				if (section.SectionInformation.IsProtected)
-				{
-					if (section.ElementInformation.IsLocked)
-					{
-						section.SectionInformation.UnprotectSection();
-						//section.SectionInformation.ForceSave = true;
-						//config.Save(ConfigurationSaveMode.Full);
-					}
-				}
+				accountData[i++] = String.Format("{0}@{1}",
+					Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Key)),
+					Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Value)));
 			}
+
+			return String.Join("*", accountData);
 		}
 
 		private void UpdateConfig()
 		{
-			EncryptConfigSection("appSettings");
+			string accountsData = EncryptData(GenerateAccountsData(Accounts));
 
-			// Save the configuration file.
-			Config.Save(ConfigurationSaveMode.Modified, true);
-		}
+			Configuration configuration = Config;
 
-		private void SetPassword(string password)
-		{
-			try
+			if (configuration.AppSettings.Settings["encAccounts"] == null)
 			{
-				Generator.SetPassword(password);
-				mnuPassCode.Text = Generator.GenerateTimeoutCode();
-				mnuPassCode.Visible = true;
-				tmrMain.Enabled = true;
-			}
-			catch (Exception)
-			{
-				MessageBox.Show("Invalid key - please re-enter");
-				mnuPassCode.Visible = false;
-				tmrMain.Enabled = false;
-				mnuSetKey.PerformClick();
-			}
-		}
-
-		private void ChangePassword(string password)
-		{
-			if (Config.AppSettings.Settings["password"] == null)
-			{
-				Config.AppSettings.Settings.Add("password", password);
+				configuration.AppSettings.Settings.Add("encAccounts", accountsData);
 			}
 			else
 			{
-				Config.AppSettings.Settings["password"].Value = password;
+				configuration.AppSettings.Settings["encAccounts"].Value = accountsData;
 			}
 
-			UpdateConfig();
-			SetPassword(password);
+			// Save the configuration file.
+			configuration.Save(ConfigurationSaveMode.Modified, true);
+		}
+
+		private string EncryptData(string data)
+		{
+			return Encryption.ToBase64(Encryption.Encrypt(data, CreateAlgorithm()));
+		}
+
+		private string DecryptData(string encData)
+		{
+			return Encryption.Decrypt(Encryption.FromBase64(encData), CreateAlgorithm());
+		}
+
+		private SymmetricAlgorithm CreateAlgorithm()
+		{
+			string sid = System.Security.Principal.WindowsIdentity.GetCurrent().User.Value;
+			return Encryption.CreateCryptoAlgorithm(sid, "LCGoogleApps");
 		}
 		
 		#endregion Methods

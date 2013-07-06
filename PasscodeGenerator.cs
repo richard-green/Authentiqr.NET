@@ -12,25 +12,15 @@ namespace LCGoogleApps
 		// Original Java code from: http://blog.jcuff.net/2011/02/cli-java-based-google-authenticator.html
 		// Converted to C# by Richard Green
 
-		private HMACSHA1 Mac { get; set; }
 		private int PassCodeLength { get; set; }
 		private int Interval { get; set; }
 		private int PinModulo { get; set; }
 
 		public PasscodeGenerator()
 		{
-			Mac = new HMACSHA1();
 			Interval = 30;
 			PassCodeLength = 6;
-
 			PinModulo = (int)Math.Pow(10, PassCodeLength);
-		}
-
-		public void SetPassword(string password)
-		{
-			byte[] key = Base32.FromBase32String(password);
-			string keyStr = ToHex(key);
-			Mac.Key = key;
 		}
 
 		public string ToHex(byte[] data)
@@ -38,8 +28,13 @@ namespace LCGoogleApps
 			return BitConverter.ToString(data).Replace("-", String.Empty).ToLower();
 		}
 
-		public String GenerateTimeoutCode()
+		public string GenerateTimeoutCode(string password)
 		{
+			byte[] key = Base32.FromBase32String(password);
+			string keyStr = ToHex(key);
+			HMACSHA1 Mac = new HMACSHA1();
+			Mac.Key = key;
+
 			byte[] challenge = Reverse(BitConverter.GetBytes(CurrentInterval));
 			byte[] hash = Mac.ComputeHash(challenge);
 

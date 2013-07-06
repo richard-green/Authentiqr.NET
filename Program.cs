@@ -6,37 +6,34 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Web;
+using Microsoft.Win32;
+using System.Threading;
 
 namespace LCGoogleApps
 {
 	static class Program
 	{
+		static Mutex instanceMutex;
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		static void Main(string[] args)
 		{
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new frmMain());
-		}
+			//Make sure only one instance with the form is displayed
+			bool firstInstance;
+			using (instanceMutex = new System.Threading.Mutex(true, "{9369686F-9050-4353-8637-2190C5536FF7}", out firstInstance))
+			{
+				if (!firstInstance)
+				{
+					return;
+				}
 
-		public static string ExecuteShellCmd(string FilePath, string Arguments)
-		{
-			FileInfo fi = new FileInfo(FilePath);
-
-			Process process = new Process();
-			process.StartInfo.UseShellExecute = false;
-			process.StartInfo.RedirectStandardOutput = true;
-			process.StartInfo.RedirectStandardError = true;
-			process.StartInfo.CreateNoWindow = true;
-			process.StartInfo.FileName = FilePath;
-			process.StartInfo.Arguments = Arguments;
-			process.StartInfo.WorkingDirectory = fi.DirectoryName;
-			process.Start();
-
-			return process.StandardOutput.ReadToEnd();
+				Application.EnableVisualStyles();
+				Application.SetCompatibleTextRenderingDefault(false);
+				Application.Run(new frmMain());
+			}
 		}
 	}
 }

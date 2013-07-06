@@ -31,46 +31,37 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.mnuPassCode = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuSetKey = new System.Windows.Forms.ToolStripMenuItem();
+			this.ContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mnuAddAccount = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.tmrMain = new System.Windows.Forms.Timer(this.components);
-			this.contextMenuStrip1.SuspendLayout();
+			this.ContextMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// notifyIcon1
 			// 
-			this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
+			this.notifyIcon1.ContextMenuStrip = this.ContextMenu;
 			this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
 			this.notifyIcon1.Text = "LCGoogleApps";
 			this.notifyIcon1.Visible = true;
 			// 
-			// contextMenuStrip1
+			// ContextMenu
 			// 
-			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuPassCode,
-            this.mnuSetKey,
+			this.ContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuAddAccount,
             this.toolStripMenuItem2,
             this.mnuExit});
-			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(112, 76);
+			this.ContextMenu.Name = "contextMenuStrip1";
+			this.ContextMenu.Size = new System.Drawing.Size(153, 76);
 			// 
-			// mnuPassCode
+			// mnuAddAccount
 			// 
-			this.mnuPassCode.Name = "mnuPassCode";
-			this.mnuPassCode.Size = new System.Drawing.Size(152, 22);
-			this.mnuPassCode.Text = "123456";
-			this.mnuPassCode.Click += new System.EventHandler(this.mnuPassCode_Click);
-			// 
-			// mnuSetKey
-			// 
-			this.mnuSetKey.Name = "mnuSetKey";
-			this.mnuSetKey.Size = new System.Drawing.Size(152, 22);
-			this.mnuSetKey.Text = "Set key";
-			this.mnuSetKey.Click += new System.EventHandler(this.mnuSetKey_Click);
+			this.mnuAddAccount.Name = "mnuAddAccount";
+			this.mnuAddAccount.Size = new System.Drawing.Size(152, 22);
+			this.mnuAddAccount.Text = "Add Account";
+			this.mnuAddAccount.Click += new System.EventHandler(this.mnuAddAccount_Click);
 			// 
 			// toolStripMenuItem2
 			// 
@@ -111,7 +102,7 @@
 			this.ShowInTaskbar = false;
 			this.Text = "Google Apps for London & Colonial";
 			this.Load += new System.EventHandler(this.frmMain_Load);
-			this.contextMenuStrip1.ResumeLayout(false);
+			this.ContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -119,13 +110,12 @@
 		#endregion
 
 		private System.Windows.Forms.NotifyIcon notifyIcon1;
-		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+		private System.Windows.Forms.ContextMenuStrip ContextMenu;
 		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
 		private System.Windows.Forms.ToolStripMenuItem mnuExit;
 		private System.Windows.Forms.ImageList imageList1;
-		private System.Windows.Forms.ToolStripMenuItem mnuPassCode;
 		private System.Windows.Forms.Timer tmrMain;
-		private System.Windows.Forms.ToolStripMenuItem mnuSetKey;
+		private System.Windows.Forms.ToolStripMenuItem mnuAddAccount;
 	}
 }
 
