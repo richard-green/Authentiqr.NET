@@ -93,7 +93,7 @@ namespace LCGoogleApps
 		/// </summary>
 		public static byte[] FromBase32String(string input)
 		{
-			return new Base32().Decode(input);
+            return new Base32(false, false, true).Decode(input);
 		}
 
 		/// <summary>
