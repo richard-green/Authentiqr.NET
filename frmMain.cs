@@ -81,19 +81,17 @@ namespace LCGoogleApps
             var accountsSection = Config.AppSettings.Settings["encAccounts"];
             var registry = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty);
 
-			if (passwordSection != null)
-			{
-				// Single Account in config
+			if (String.IsNullOrEmpty(registry) == false)
+            {
+                // Multiple Accounts in the user registry
 
-				string password = DecryptData(passwordSection.Value);
+                Accounts = ParseAccountsData(DecryptData(registry));
 
-				Accounts.Add("Default Account", password);
-				InitAccount("Default Account", password);
-
-				Config.AppSettings.Settings.Remove("encPass");
-                Config.Save(ConfigurationSaveMode.Modified, true);
-				UpdateConfig();
-			}
+                foreach (var account in Accounts)
+                {
+                    InitAccount(account.Key, account.Value);
+                }
+            }
             else if (accountsSection != null)
             {
                 // Multiple Accounts in config
@@ -109,17 +107,20 @@ namespace LCGoogleApps
                 Config.Save(ConfigurationSaveMode.Modified, true);
                 UpdateConfig();
             }
-            else if (String.IsNullOrEmpty(registry) == false)
+            else if (passwordSection != null)
             {
-                // Multiple Accounts in the user registry
+                // Single Account in config
 
-                Accounts = ParseAccountsData(DecryptData(registry));
+                string password = DecryptData(passwordSection.Value);
 
-                foreach (var account in Accounts)
-                {
-                    InitAccount(account.Key, account.Value);
-                }
+                Accounts.Add("Default Account", password);
+                InitAccount("Default Account", password);
+
+                Config.AppSettings.Settings.Remove("encPass");
+                Config.Save(ConfigurationSaveMode.Modified, true);
+                UpdateConfig();
             }
+            
 		}
 
 		private void tmrMain_Tick(object sender, EventArgs e)
