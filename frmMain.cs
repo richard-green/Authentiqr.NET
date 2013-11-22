@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Security.Cryptography;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace LCGoogleApps
 {
@@ -76,11 +77,13 @@ namespace LCGoogleApps
 
 		private void frmMain_Load(object sender, EventArgs e)
 		{
-			var passwordSection = Config.AppSettings.Settings["encPass"];
+            var passwordSection = Config.AppSettings.Settings["encPass"];
+            var accountsSection = Config.AppSettings.Settings["encAccounts"];
+            var registry = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty);
 
 			if (passwordSection != null)
 			{
-				// Single Account
+				// Single Account in config
 
 				string password = DecryptData(passwordSection.Value);
 
@@ -88,24 +91,35 @@ namespace LCGoogleApps
 				InitAccount("Default Account", password);
 
 				Config.AppSettings.Settings.Remove("encPass");
+                Config.Save(ConfigurationSaveMode.Modified, true);
 				UpdateConfig();
 			}
-			else
-			{
-				// Multiple Accounts
+            else if (accountsSection != null)
+            {
+                // Multiple Accounts in config
 
-				var accountsSection = Config.AppSettings.Settings["encAccounts"];
+                Accounts = ParseAccountsData(DecryptData(accountsSection.Value));
 
-				if (accountsSection != null)
-				{
-					Accounts = ParseAccountsData(DecryptData(accountsSection.Value));
+                foreach (var account in Accounts)
+                {
+                    InitAccount(account.Key, account.Value);
+                }
 
-					foreach (var account in Accounts)
-					{
-						InitAccount(account.Key, account.Value);
-					}
-				}
-			}
+                Config.AppSettings.Settings.Remove("encAccounts");
+                Config.Save(ConfigurationSaveMode.Modified, true);
+                UpdateConfig();
+            }
+            else if (String.IsNullOrEmpty(registry) == false)
+            {
+                // Multiple Accounts in the user registry
+
+                Accounts = ParseAccountsData(DecryptData(registry));
+
+                foreach (var account in Accounts)
+                {
+                    InitAccount(account.Key, account.Value);
+                }
+            }
 		}
 
 		private void tmrMain_Tick(object sender, EventArgs e)
@@ -135,6 +149,7 @@ namespace LCGoogleApps
 
 			using (frmAddAccount form = new frmAddAccount())
 			{
+                form.ShowRemove(true);
 				form.AccountName = oldAccountName;
 				form.SetKey(oldPassword);
 				DialogResult result = form.ShowDialog(this);
@@ -143,14 +158,26 @@ namespace LCGoogleApps
 				{
 					Accounts.Remove(oldAccountName);
 
-					string password = Regex.Replace(form.Key, "\\s", "");
+					string password = form.Key;
 					string accountName = form.AccountName;
 
-					Accounts[accountName] = password;
-					UpdateConfig();
+                    if (String.IsNullOrEmpty(accountName) == false &&
+                        String.IsNullOrEmpty(password) == false)
+                    {
+                        Accounts[accountName] = password;
 
-					accountMenuItem.Text = accountName;
-					timeoutMenuItem.Tag = password;
+                        accountMenuItem.Text = accountName;
+                        timeoutMenuItem.Tag = password;
+                    }
+                    else
+                    {
+                        var ix = ContextMenu.Items.IndexOf(accountMenuItem);
+                        ContextMenu.Items.RemoveAt(ix + 2); // remove separator
+                        ContextMenu.Items.RemoveAt(ix + 1); // remove timeout password
+                        ContextMenu.Items.RemoveAt(ix); // remove account name
+                    }
+
+                    UpdateConfig();
 				}
 			}
 		}
@@ -242,20 +269,7 @@ namespace LCGoogleApps
 		private void UpdateConfig()
 		{
 			string accountsData = EncryptData(GenerateAccountsData(Accounts));
-
-			Configuration configuration = Config;
-
-			if (configuration.AppSettings.Settings["encAccounts"] == null)
-			{
-				configuration.AppSettings.Settings.Add("encAccounts", accountsData);
-			}
-			else
-			{
-				configuration.AppSettings.Settings["encAccounts"].Value = accountsData;
-			}
-
-			// Save the configuration file.
-			configuration.Save(ConfigurationSaveMode.Modified, true);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", accountsData, RegistryValueKind.String);
 		}
 
 		private string EncryptData(string data)

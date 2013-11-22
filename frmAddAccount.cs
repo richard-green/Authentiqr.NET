@@ -32,6 +32,12 @@ namespace LCGoogleApps
 			set;
 		}
 
+        public string Message
+        {
+            get;
+            set;
+        }
+
 		private PasscodeGenerator generator;
 		protected PasscodeGenerator Generator
 		{
@@ -79,7 +85,7 @@ namespace LCGoogleApps
 			}
 			else
 			{
-				MessageBox.Show("Invalid password, please try again");
+				MessageBox.Show(String.Format("Invalid password, please try again:\r\n\r\n{0}", Message));
 			}
 		}
 
@@ -87,6 +93,19 @@ namespace LCGoogleApps
 		{
 			DialogResult = System.Windows.Forms.DialogResult.Cancel;
 		}
+
+        private void btnRemove_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(String.Format("Are you sure you want to remove the following account?\r\n\r\n{0}", AccountName),
+                                "Remove Account",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.Yes)
+            {
+                Key = "";
+                AccountName = "";
+                DialogResult = System.Windows.Forms.DialogResult.OK;
+            }
+        }
 
 		private void txtKey_KeyUp(object sender, KeyEventArgs e)
 		{
@@ -96,6 +115,12 @@ namespace LCGoogleApps
 		#endregion User Events
 
 		#region Methods
+
+        public void ShowRemove(bool visible)
+        {
+            btnRemove.Visible = visible;
+            btnRemove.Enabled = visible;
+        }
 
 		public void SetKey(string key)
 		{
@@ -109,11 +134,12 @@ namespace LCGoogleApps
 				tmrMain.Enabled = true;
 				txtKey.ForeColor = Color.Black;
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 				lblCode.Visible = false;
 				tmrMain.Enabled = false;
 				IsValid = false;
+                Message = ex.Message;
 				txtKey.ForeColor = Color.Red;
 			}
 		}
