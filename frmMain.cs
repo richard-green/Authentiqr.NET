@@ -358,12 +358,6 @@ namespace LCGoogleApps
             return Encryption.CreateCryptoAlgorithm(patternEnabled ? Encryption.GeneratePasswordHash(pattern, sid) : sid, "LCGoogleApps");
         }
 
-        private SymmetricAlgorithm CreateOldAlgorithm()
-        {
-            string sid = System.Security.Principal.WindowsIdentity.GetCurrent().User.Value;
-            return Encryption.CreateCryptoAlgorithm(patternEnabled ? pattern + sid : sid, "LCGoogleApps");
-        }
-
         #endregion Methods
     }
 }
