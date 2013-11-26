@@ -11,7 +11,7 @@ namespace LCGoogleApps
 		private const string CryptoKey = "496f1a09cce8b429725ceca93d29adaad4bb97bc0870dda39d42c78be8c74f65";
 		private const string CryptoIV = "4e3eb5fa6d3c7146d5332a2f58867c95";
 		private const string FixedSalt = "c0NjU3MDlmNzRjMjQwYg";
-		private const int HashRounds = 30000;
+		private const int HashRounds = 300000;
 
 		private static HashAlgorithm Hasher { get; set; }
 
@@ -145,10 +145,6 @@ namespace LCGoogleApps
 					}
 				}
 			}
-			catch (Exception)
-			{
-				plaintext = null;
-			}
 			finally
 			{
 				algorithm.Clear();
@@ -204,7 +200,7 @@ namespace LCGoogleApps
 
 			for (int i = 1; i < HashRounds; i++)
 			{
-				hash = Hash(hash);
+                hash = Hash(hash);
 			}
 
 			return ToBase64(hash);
