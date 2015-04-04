@@ -10,15 +10,13 @@ using System.Security.Cryptography;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using System.Security;
 
 namespace LCGoogleApps
 {
     public partial class frmMain : Form
     {
         #region Properties
-
-        private bool patternEnabled = false;
-        private string pattern;
 
         private PasscodeGenerator generator;
         protected PasscodeGenerator Generator
@@ -48,7 +46,7 @@ namespace LCGoogleApps
             }
         }
 
-        protected Dictionary<string, string> Accounts = new Dictionary<string, string>();
+        private Settings settings;
 
         private List<ToolStripItem> TimeoutMenuItems = new List<ToolStripItem>();
 
@@ -80,12 +78,14 @@ namespace LCGoogleApps
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            patternEnabled = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
+            settings = new Settings();
+            settings.LoadSettings();
 
-            if (patternEnabled == false)
+            if (settings.PatternEnabled == false)
             {
                 mnuUnlock.Text = "Lock Data";
-                LoadAccounts();
+                settings.LoadAccounts();
+                InitAccounts();
             }
             else
             {
@@ -127,7 +127,7 @@ namespace LCGoogleApps
 
                 if (result == DialogResult.OK)
                 {
-                    Accounts.Remove(oldAccountName);
+                    settings.Accounts.Remove(oldAccountName);
 
                     string password = form.Key;
                     string accountName = form.AccountName;
@@ -135,7 +135,7 @@ namespace LCGoogleApps
                     if (String.IsNullOrEmpty(accountName) == false &&
                         String.IsNullOrEmpty(password) == false)
                     {
-                        Accounts[accountName] = password;
+                        settings.Accounts[accountName] = password;
 
                         accountMenuItem.Text = accountName;
                         timeoutMenuItem.Tag = password;
@@ -148,7 +148,7 @@ namespace LCGoogleApps
                         ContextMenu.Items.RemoveAt(ix); // remove account name
                     }
 
-                    SaveAccounts();
+                    settings.SaveAccounts();
                 }
             }
         }
@@ -164,8 +164,8 @@ namespace LCGoogleApps
                     string password = Regex.Replace(form.Key, "\\s", "");
                     string accountName = form.AccountName;
 
-                    Accounts[accountName] = password;
-                    SaveAccounts();
+                    settings.Accounts[accountName] = password;
+                    settings.SaveAccounts();
 
                     InitAccount(accountName, password);
                 }
@@ -179,20 +179,20 @@ namespace LCGoogleApps
 
         private void mnuUnlock_Click(object sender, EventArgs e)
         {
-            using (frmPatternLock form = new frmPatternLock())
+            using (frmPatternLock form = new frmPatternLock(settings))
             {
                 DialogResult result = form.ShowDialog(this);
 
                 if (result == DialogResult.OK)
                 {
-                    if (patternEnabled)
+                    if (settings.PatternEnabled)
                     {
-                        // Perform unlock
-                        pattern = form.GetPattern();
-
                         try
                         {
-                            LoadAccounts();
+                            // Perform unlock
+                            settings.SetPattern(form.GetPattern());
+                            settings.LoadAccounts();
+                            InitAccounts();
                             mnuUnlock.Visible = false;
                             mnuAddAccount.Enabled = true;
                         }
@@ -204,13 +204,15 @@ namespace LCGoogleApps
                     else
                     {
                         // Perform lock
-                        patternEnabled = true;
                         mnuUnlock.Visible = false;
-                        pattern = form.GetPattern();
 
-                        SaveAccounts();
+                        settings.PatternEnabled = true;
+                        settings.SetPattern(form.GetPattern());
+                        settings.SaveAccounts();
                     }
                 }
+
+                settings.SaveSettings();
             }
         }
 
@@ -218,56 +220,11 @@ namespace LCGoogleApps
 
         #region Methods
 
-        private void LoadAccounts()
+        private void InitAccounts()
         {
-            var passwordSection = Config.AppSettings.Settings["encPass"];
-            var accountsSection = Config.AppSettings.Settings["encAccounts"];
-            var registryValue = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty);
-
-            if (String.IsNullOrEmpty(registryValue) == false)
+            foreach (var account in settings.Accounts)
             {
-                // Multiple Accounts in the user registry
-
-                Accounts = ParseAccountsData(DecryptData(registryValue));
-
-                foreach (var account in Accounts)
-                {
-                    InitAccount(account.Key, account.Value);
-                }
-            }
-            else if (accountsSection != null)
-            {
-                // Multiple Accounts in config
-
-                Accounts = ParseAccountsData(DecryptData(accountsSection.Value));
-
-                foreach (var account in Accounts)
-                {
-                    InitAccount(account.Key, account.Value);
-                }
-
-                // Remove from config
-                Config.AppSettings.Settings.Remove("encAccounts");
-                Config.Save(ConfigurationSaveMode.Modified, true);
-
-                // Save to registry
-                SaveAccounts();
-            }
-            else if (passwordSection != null)
-            {
-                // Single Account in config
-
-                string password = DecryptData(passwordSection.Value);
-
-                Accounts.Add("Default Account", password);
-                InitAccount("Default Account", password);
-
-                // Remove from config
-                Config.AppSettings.Settings.Remove("encPass");
-                Config.Save(ConfigurationSaveMode.Modified, true);
-
-                // Save to registry
-                SaveAccounts();
+                InitAccount(account.Key, account.Value);
             }
         }
 
@@ -287,75 +244,6 @@ namespace LCGoogleApps
             ContextMenu.Items.Insert(0, accountMenuItem);
 
             tmrMain.Enabled = true;
-        }
-
-        private Dictionary<string, string> ParseAccountsData(string data)
-        {
-            if (String.IsNullOrEmpty(data))
-            {
-                return new Dictionary<string, string>();
-            }
-            else
-            {
-                Dictionary<string, string> output = new Dictionary<string, string>();
-                string[] accountData = data.Split('*');
-
-                foreach (var account in accountData)
-                {
-                    string[] kvp = account.Split('@');
-                    kvp[0] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[0]));
-                    kvp[1] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[1]));
-                    output[kvp[0]] = kvp[1];
-                }
-
-                return output;
-            }
-        }
-
-        private string GenerateAccountsData(Dictionary<string, string> accounts)
-        {
-            string[] accountData = new string[accounts.Count];
-            int i = 0;
-
-            foreach (var account in accounts)
-            {
-                accountData[i++] = String.Format("{0}@{1}",
-                    Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Key)),
-                    Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Value)));
-            }
-
-            return String.Join("*", accountData);
-        }
-
-        private void SaveAccounts()
-        {
-            if (Accounts.Count > 0)
-            {
-                string accountsData = EncryptData(GenerateAccountsData(Accounts));
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", accountsData, RegistryValueKind.String);
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", patternEnabled ? 1 : 0, RegistryValueKind.DWord);
-            }
-            else
-            {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty, RegistryValueKind.String);
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", patternEnabled ? 1 : 0, RegistryValueKind.DWord);
-            }
-        }
-
-        private string EncryptData(string data)
-        {
-            return Encryption.ToBase64(Encryption.Encrypt(data, CreateAlgorithm()));
-        }
-
-        private string DecryptData(string encData)
-        {
-            return Encryption.Decrypt(Encryption.FromBase64(encData), CreateAlgorithm());
-        }
-
-        private SymmetricAlgorithm CreateAlgorithm()
-        {
-            string sid = System.Security.Principal.WindowsIdentity.GetCurrent().User.Value;
-            return Encryption.CreateCryptoAlgorithm(patternEnabled ? Encryption.GeneratePasswordHash(pattern, sid) : sid, "LCGoogleApps");
         }
 
         #endregion Methods

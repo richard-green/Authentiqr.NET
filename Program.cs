@@ -1,14 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Web;
-using Microsoft.Win32;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace LCGoogleApps
 {

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace LCGoogleApps
@@ -14,10 +11,17 @@ namespace LCGoogleApps
     {
         bool mouseDown = false;
         List<int> pattern = new List<int>();
+        private Settings settings;
+        private bool constructing = true;
 
-        public frmPatternLock()
+        public frmPatternLock(Settings settings)
         {
             InitializeComponent();
+            this.settings = settings;
+            this.StartPosition = FormStartPosition.Manual;
+            this.Top = settings.PatternWindowTop;
+            this.Left = settings.PatternWindowLeft;
+            constructing = false;
         }
 
         public string GetPattern()
@@ -82,7 +86,16 @@ namespace LCGoogleApps
                 int y = i / 3;
                 int px = 10 + x * 75;
                 int py = 10 + y * 75;
-                e.Graphics.DrawEllipse(selected ? new Pen(Brushes.Turquoise, 2.5f) : new Pen(Brushes.Silver, 1.5f), new Rectangle(px, py, 50, 50));
+                e.Graphics.DrawEllipse(selected ? new Pen(Brushes.White, 3.5f) : new Pen(Brushes.Silver, 2.5f), new Rectangle(px, py, 50, 50));
+            }
+        }
+
+        private void frmPatternLock_Move(object sender, EventArgs e)
+        {
+            if (constructing == false)
+            {
+                settings.PatternWindowTop = this.Top;
+                settings.PatternWindowLeft = this.Left;
             }
         }
     }

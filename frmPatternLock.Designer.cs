@@ -85,6 +85,7 @@
             this.Name = "frmPatternLock";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Enter Pattern";
+            this.Move += new System.EventHandler(this.frmPatternLock_Move);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
