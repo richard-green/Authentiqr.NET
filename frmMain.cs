@@ -222,7 +222,7 @@ namespace LCGoogleApps
 
         private void InitAccounts()
         {
-            foreach (var account in settings.Accounts)
+            foreach (var account in settings.Accounts.OrderByDescending(f => f.Key.ToLower()))
             {
                 InitAccount(account.Key, account.Value);
             }
