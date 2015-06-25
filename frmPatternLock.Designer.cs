@@ -79,7 +79,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = Resources.Padlock;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(264, 315);
             this.MinimizeBox = false;

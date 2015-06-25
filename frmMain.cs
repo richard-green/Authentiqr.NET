@@ -142,10 +142,10 @@ namespace LCGoogleApps
                     }
                     else
                     {
-                        var ix = ContextMenu.Items.IndexOf(accountMenuItem);
-                        ContextMenu.Items.RemoveAt(ix + 2); // remove separator
-                        ContextMenu.Items.RemoveAt(ix + 1); // remove timeout password
-                        ContextMenu.Items.RemoveAt(ix); // remove account name
+                        var ix = contextMenu.Items.IndexOf(accountMenuItem);
+                        contextMenu.Items.RemoveAt(ix + 2); // remove separator
+                        contextMenu.Items.RemoveAt(ix + 1); // remove timeout password
+                        contextMenu.Items.RemoveAt(ix); // remove account name
                     }
 
                     settings.SaveAccounts();
@@ -239,9 +239,9 @@ namespace LCGoogleApps
             accountMenuItem.Tag = timeoutMenuItem;
             timeoutMenuItem.Tag = key;
 
-            ContextMenu.Items.Insert(0, separator);
-            ContextMenu.Items.Insert(0, timeoutMenuItem);
-            ContextMenu.Items.Insert(0, accountMenuItem);
+            contextMenu.Items.Insert(0, separator);
+            contextMenu.Items.Insert(0, timeoutMenuItem);
+            contextMenu.Items.Insert(0, accountMenuItem);
 
             tmrMain.Enabled = true;
         }
