@@ -17,9 +17,9 @@ namespace LCGoogleApps
 
         public void LoadSettings()
         {
-            PatternEnabled = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
-            PatternWindowTop = (int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop);
-            PatternWindowLeft = (int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft);
+            PatternEnabled = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
+            PatternWindowTop = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop)).GetValueOrDefault(100);
+            PatternWindowLeft = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft)).GetValueOrDefault(100);
         }
 
         public void SaveSettings()
