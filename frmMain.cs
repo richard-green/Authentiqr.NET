@@ -123,6 +123,7 @@ namespace LCGoogleApps
                 form.ShowRemove(true);
                 form.AccountName = oldAccountName;
                 form.SetKey(oldPassword);
+                form.RenderQRCode(oldAccountName, oldPassword);
                 DialogResult result = form.ShowDialog(this);
 
                 if (result == DialogResult.OK)
