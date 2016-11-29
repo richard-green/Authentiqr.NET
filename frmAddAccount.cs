@@ -126,16 +126,9 @@ namespace LCGoogleApps
                 {
                     var filename = ((string[])e.Data.GetData("FileDrop"))[0];
 
-                    using (var bitmap = new Bitmap(Bitmap.FromFile(filename)))
+                    using (var image = Bitmap.FromFile(filename))
                     {
-                        ReadBitmap(bitmap);
-                    }
-                }
-                else if (formats.Contains("DragImageBits"))
-                {
-                    using (var stream = (MemoryStream)e.Data.GetData("DragImageBits"))
-                    {
-                        using (var bitmap = new Bitmap(stream))
+                        using (var bitmap = new Bitmap(image))
                         {
                             ReadBitmap(bitmap);
                         }
@@ -152,7 +145,7 @@ namespace LCGoogleApps
         {
             var formats = e.Data.GetFormats();
 
-            if (formats.Contains("FileDrop") || formats.Contains("DragImageBits"))
+            if (formats.Contains("FileDrop"))
             {
                 e.Effect = DragDropEffects.Copy;
             }
@@ -213,12 +206,15 @@ namespace LCGoogleApps
 
             RenderQRCode(decoded.Text);
 
-            Regex otpInfo = new Regex(@"otpauth://totp/(.*)\?secret=([^&]+)(&.*)?");
-            if (otpInfo.IsMatch(decoded.Text))
+            var uri = new Uri(decoded.Text);
+
+            if (uri.Scheme == "otpauth")
             {
-                var match = otpInfo.Match(decoded.Text);
-                txtAccountName.Text = HttpUtility.UrlDecode(match.Groups[1].Value);
-                SetKey(match.Groups[2].Value);
+                var queryString = HttpUtility.ParseQueryString(uri.Query);
+                var secret = queryString["secret"];
+                var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
+                txtAccountName.Text = HttpUtility.UrlDecode(account);
+                SetKey(secret);
             }
             else
             {
