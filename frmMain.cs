@@ -1,16 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Security.Cryptography;
 using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Microsoft.Win32;
-using System.Security;
+using System.Windows.Forms;
 
 namespace LCGoogleApps
 {
@@ -57,13 +53,13 @@ namespace LCGoogleApps
         public frmMain()
         {
             this.MaximizeBox = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.StartPosition = FormStartPosition.Manual;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.None;
             this.Enabled = false;
-            this.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
+            this.AccessibleRole = AccessibleRole.None;
             this.ShowInTaskbar = false;
-            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.SizeGripStyle = SizeGripStyle.Hide;
             this.ControlBox = false;
             this.MinimizeBox = false;
             this.ClientSize = new System.Drawing.Size(1, 7);
@@ -81,6 +77,11 @@ namespace LCGoogleApps
             settings = new Settings();
             settings.LoadSettings();
 
+            if (settings.StartupPrompt)
+            {
+                StartupPrompt();
+            }
+
             if (settings.PatternEnabled == false)
             {
                 mnuUnlock.Text = "Lock Data";
@@ -90,6 +91,34 @@ namespace LCGoogleApps
             else
             {
                 mnuAddAccount.Enabled = false;
+            }
+
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+        }
+
+        private void StartupPrompt()
+        {
+            var response = MessageBox.Show("Would you like to run LCGoogleApps on startup?", "Startup", MessageBoxButtons.YesNo);
+
+            if (response == DialogResult.Yes)
+            {
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "LCGoogleApps", Environment.CommandLine, RegistryValueKind.String);
+            }
+
+            settings.StartupPrompt = false;
+            settings.SaveSettings();
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            switch (e.Reason)
+            {
+                case SessionSwitchReason.SessionLock:
+                case SessionSwitchReason.SessionLogoff:
+                case SessionSwitchReason.RemoteDisconnect:
+                case SessionSwitchReason.ConsoleDisconnect:
+                    // ToDo - Lock the 2FA data when the machine is locked
+                    break;
             }
         }
 

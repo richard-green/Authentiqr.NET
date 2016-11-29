@@ -12,6 +12,7 @@ namespace LCGoogleApps
         public bool PatternEnabled = false;
         public int PatternWindowTop = 100;
         public int PatternWindowLeft = 100;
+        public bool StartupPrompt = true;
 
         private string pattern;
 
@@ -20,6 +21,7 @@ namespace LCGoogleApps
             PatternEnabled = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
             PatternWindowTop = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop)).GetValueOrDefault(100);
             PatternWindowLeft = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft)).GetValueOrDefault(100);
+            StartupPrompt = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "StartupPrompt", 1)) == 1;
         }
 
         public void SaveSettings()
@@ -27,6 +29,7 @@ namespace LCGoogleApps
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", PatternEnabled ? 1 : 0, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "StartupPrompt", StartupPrompt ? 1 : 0, RegistryValueKind.DWord);
         }
 
         public void LoadAccounts()

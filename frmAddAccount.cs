@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Text.RegularExpressions;
 using System.Drawing.Drawing2D;
-using System.Web;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Windows.Forms;
 
 namespace LCGoogleApps
 {
@@ -129,14 +125,21 @@ namespace LCGoogleApps
                 if (formats.Contains("FileDrop"))
                 {
                     var filename = ((string[])e.Data.GetData("FileDrop"))[0];
-                    var bitmap = new Bitmap(Bitmap.FromFile(filename));
-                    ReadBitmap(bitmap);
+
+                    using (var bitmap = new Bitmap(Bitmap.FromFile(filename)))
+                    {
+                        ReadBitmap(bitmap);
+                    }
                 }
                 else if (formats.Contains("DragImageBits"))
                 {
-                    var stream = (MemoryStream)e.Data.GetData("DragImageBits");
-                    var bitmap = new Bitmap(stream);
-                    ReadBitmap(bitmap);
+                    using (var stream = (MemoryStream)e.Data.GetData("DragImageBits"))
+                    {
+                        using (var bitmap = new Bitmap(stream))
+                        {
+                            ReadBitmap(bitmap);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
