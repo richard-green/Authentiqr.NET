@@ -94,12 +94,12 @@
             // 
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "Facebook.ico");
-            this.imageList.Images.SetKeyName(1, "Google.ico");
-            this.imageList.Images.SetKeyName(2, "Microsoft.png");
-            this.imageList.Images.SetKeyName(3, "Github.ico");
-            this.imageList.Images.SetKeyName(4, "Dropbox.png");
-            this.imageList.Images.SetKeyName(5, "UPlay.ico");
+            this.imageList.Images.SetKeyName(0, "facebook.png");
+            this.imageList.Images.SetKeyName(1, "google-0.png");
+            this.imageList.Images.SetKeyName(2, "Microsoft-16.png");
+            this.imageList.Images.SetKeyName(3, "github-0.png");
+            this.imageList.Images.SetKeyName(4, "Dropbox-16.png");
+            this.imageList.Images.SetKeyName(5, "uplay.png");
             // 
             // frmMain
             // 
