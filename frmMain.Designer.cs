@@ -29,6 +29,7 @@
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddAccount = new System.Windows.Forms.ToolStripMenuItem();
@@ -36,6 +37,7 @@
             this.mnuUnlock = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.tmrMain = new System.Windows.Forms.Timer(this.components);
+            this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,26 +61,26 @@
             // mnuAddAccount
             // 
             this.mnuAddAccount.Name = "mnuAddAccount";
-            this.mnuAddAccount.Size = new System.Drawing.Size(152, 22);
+            this.mnuAddAccount.Size = new System.Drawing.Size(144, 22);
             this.mnuAddAccount.Text = "Add Account";
             this.mnuAddAccount.Click += new System.EventHandler(this.mnuAddAccount_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(141, 6);
             // 
             // mnuUnlock
             // 
             this.mnuUnlock.Name = "mnuUnlock";
-            this.mnuUnlock.Size = new System.Drawing.Size(152, 22);
+            this.mnuUnlock.Size = new System.Drawing.Size(144, 22);
             this.mnuUnlock.Text = "Unlock";
             this.mnuUnlock.Click += new System.EventHandler(this.mnuUnlock_Click);
             // 
             // mnuExit
             // 
             this.mnuExit.Name = "mnuExit";
-            this.mnuExit.Size = new System.Drawing.Size(152, 22);
+            this.mnuExit.Size = new System.Drawing.Size(144, 22);
             this.mnuExit.Text = "Exit";
             this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
             // 
@@ -88,16 +90,27 @@
             this.tmrMain.Interval = 1000;
             this.tmrMain.Tick += new System.EventHandler(this.tmrMain_Tick);
             // 
+            // imageList
+            // 
+            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList.Images.SetKeyName(0, "Facebook.ico");
+            this.imageList.Images.SetKeyName(1, "Google.ico");
+            this.imageList.Images.SetKeyName(2, "Microsoft.png");
+            this.imageList.Images.SetKeyName(3, "Github.ico");
+            this.imageList.Images.SetKeyName(4, "Dropbox.png");
+            this.imageList.Images.SetKeyName(5, "UPlay.ico");
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(212, 76);
             this.Icon = global::LCGoogleApps.Resources.Padlock;
             this.Location = new System.Drawing.Point(-1000, 0);
             this.Name = "frmMain";
             this.ShowInTaskbar = false;
-            this.Text = "2-Factor Authenticator";
+            this.Text = "LCGoogleApps";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -113,6 +126,7 @@
 		private System.Windows.Forms.Timer tmrMain;
 		private System.Windows.Forms.ToolStripMenuItem mnuAddAccount;
         private System.Windows.Forms.ToolStripMenuItem mnuUnlock;
-	}
+        private System.Windows.Forms.ImageList imageList;
+    }
 }
 

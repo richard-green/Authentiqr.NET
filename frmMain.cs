@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -152,7 +153,6 @@ namespace LCGoogleApps
                 form.ShowRemove(true);
                 form.AccountName = oldAccountName;
                 form.SetKey(oldPassword);
-                form.RenderQRCode(oldAccountName, oldPassword);
                 DialogResult result = form.ShowDialog(this);
 
                 if (result == DialogResult.OK)
@@ -260,7 +260,7 @@ namespace LCGoogleApps
 
         private void InitAccount(string accountName, string key)
         {
-            ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, null, mnuAccount_Click);
+            ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, FindImage(accountName), mnuAccount_Click);
             ToolStripItem timeoutMenuItem = new ToolStripMenuItem(Generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
             ToolStripItem separator = new ToolStripSeparator();
 
@@ -274,6 +274,38 @@ namespace LCGoogleApps
             contextMenu.Items.Insert(0, accountMenuItem);
 
             tmrMain.Enabled = true;
+        }
+
+        private Image FindImage(string accountName)
+        {
+            var accountNameLower = accountName.ToLower();
+
+            if (accountNameLower.StartsWith("facebook"))
+            {
+                return imageList.Images[0];
+            }
+            else if (accountNameLower.StartsWith("google"))
+            {
+                return imageList.Images[1];
+            }
+            else if (accountNameLower.StartsWith("microsoft"))
+            {
+                return imageList.Images[2];
+            }
+            else if (accountNameLower.StartsWith("github"))
+            {
+                return imageList.Images[3];
+            }
+            else if (accountNameLower.StartsWith("dropbox"))
+            {
+                return imageList.Images[4];
+            }
+            else if (accountNameLower.StartsWith("uplay"))
+            {
+                return imageList.Images[5];
+            }
+
+            return null;
         }
 
         #endregion Methods

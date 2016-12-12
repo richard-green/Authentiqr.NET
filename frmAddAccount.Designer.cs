@@ -57,6 +57,7 @@
             this.txtAccountName.Name = "txtAccountName";
             this.txtAccountName.Size = new System.Drawing.Size(300, 20);
             this.txtAccountName.TabIndex = 1;
+            this.txtAccountName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtAccountName_KeyUp);
             // 
             // txtKey
             // 
@@ -157,8 +158,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Enter Account Details";
             this.Load += new System.EventHandler(this.frmAddAccount_Load);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragEnter);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragEnter);
             ((System.ComponentModel.ISupportInitialize)(this.pbQRCode)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

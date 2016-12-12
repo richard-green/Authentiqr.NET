@@ -75,6 +75,10 @@ namespace LCGoogleApps
             {
                 lblCode.Text = Generator.GenerateTimeoutCode(Key);
             }
+            else
+            {
+                lblCode.Text = "";
+            }
         }
 
         #endregion .NET Events
@@ -109,6 +113,11 @@ namespace LCGoogleApps
                 AccountName = "";
                 DialogResult = DialogResult.OK;
             }
+        }
+
+        private void txtAccountName_KeyUp(object sender, KeyEventArgs e)
+        {
+            RenderQRCode();
         }
 
         private void txtKey_KeyUp(object sender, KeyEventArgs e)
@@ -167,6 +176,12 @@ namespace LCGoogleApps
 
             try
             {
+                if (String.IsNullOrEmpty(Key))
+                {
+                    IsValid = false;
+                    return;
+                }
+
                 lblCode.Text = Generator.GenerateTimeoutCode(Key);
                 lblCode.Visible = true;
                 IsValid = true;
@@ -181,32 +196,34 @@ namespace LCGoogleApps
                 Message = ex.Message;
                 txtKey.ForeColor = Color.Red;
             }
-        }
-
-        public void RenderQRCode(string accountName, string key)
-        {
-            RenderQRCode(String.Format("otpauth://totp/{0}?secret={1}", accountName, key));
-        }
-
-        public void RenderQRCode(string otpauth)
-        {
-            var writer = new ZXing.BarcodeWriter
+            finally
             {
-                Format = ZXing.BarcodeFormat.QR_CODE
-            };
+                RenderQRCode();
+            }
+        }
 
-            var newBitmap = writer.Write(otpauth);
-            pbQRCode.Image = ResizeImage(newBitmap, new Size(300, 300));
+        public void RenderQRCode()
+        {
+            if (IsValid)
+            {
+                var writer = new ZXing.BarcodeWriter
+                {
+                    Format = ZXing.BarcodeFormat.QR_CODE
+                };
+
+                var otpauth = String.Format("otpauth://totp/{0}?secret={1}", AccountName, Key);
+                var newBitmap = writer.Write(otpauth);
+                pbQRCode.Image = ResizeImage(newBitmap, new Size(300, 300));
+            }
         }
 
         private void ReadBitmap(Bitmap bitmap)
         {
             var reader = new ZXing.BarcodeReader();
             var decoded = reader.Decode(bitmap);
+            var text = decoded.Text;
 
-            RenderQRCode(decoded.Text);
-
-            var uri = new Uri(decoded.Text);
+            var uri = new Uri(text);
 
             if (uri.Scheme == "otpauth")
             {
