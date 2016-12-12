@@ -160,6 +160,17 @@ namespace LCGoogleApps
             }
         }
 
+        private void pbQRCode_DoubleClick(object sender, EventArgs e)
+        {
+            saveFileDialog.FileName = String.Format("{0}.png", AccountName);
+            saveFileDialog.ShowDialog();
+        }
+
+        private void saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            pbQRCode.Image.Save(saveFileDialog.FileName);
+        }
+
         #endregion User Events
 
         #region Methods
@@ -220,22 +231,33 @@ namespace LCGoogleApps
         private void ReadBitmap(Bitmap bitmap)
         {
             var reader = new ZXing.BarcodeReader();
+            reader.Options.TryHarder = true;
+            reader.AutoRotate = true;
+
             var decoded = reader.Decode(bitmap);
-            var text = decoded.Text;
 
-            var uri = new Uri(text);
-
-            if (uri.Scheme == "otpauth")
+            if (decoded != null)
             {
-                var queryString = HttpUtility.ParseQueryString(uri.Query);
-                var secret = queryString["secret"];
-                var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
-                txtAccountName.Text = HttpUtility.UrlDecode(account);
-                SetKey(secret);
+                var text = decoded.Text;
+
+                var uri = new Uri(text);
+
+                if (uri.Scheme == "otpauth")
+                {
+                    var queryString = HttpUtility.ParseQueryString(uri.Query);
+                    var secret = queryString["secret"];
+                    var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
+                    txtAccountName.Text = HttpUtility.UrlDecode(account);
+                    SetKey(secret);
+                }
+                else
+                {
+                    MessageBox.Show("The QR Code does not contain valid OAuth data", "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
-                MessageBox.Show("The QR Code does not contain valid OAuth data", "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("The QR Code could not be read", "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

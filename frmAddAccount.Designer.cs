@@ -39,6 +39,7 @@
             this.tmrMain = new System.Windows.Forms.Timer(this.components);
             this.btnRemove = new System.Windows.Forms.Button();
             this.pbQRCode = new System.Windows.Forms.PictureBox();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.pbQRCode)).BeginInit();
             this.SuspendLayout();
             // 
@@ -132,6 +133,12 @@
             this.pbQRCode.Size = new System.Drawing.Size(300, 300);
             this.pbQRCode.TabIndex = 6;
             this.pbQRCode.TabStop = false;
+            this.pbQRCode.DoubleClick += new System.EventHandler(this.pbQRCode_DoubleClick);
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "png";
+            this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
             // 
             // frmAddAccount
             // 
@@ -178,5 +185,6 @@
 		private System.Windows.Forms.Timer tmrMain;
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.PictureBox pbQRCode;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
