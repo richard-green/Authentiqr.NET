@@ -8,9 +8,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using LCGoogleApps.Code;
+using Authentiqr.NET.Code;
 
-namespace LCGoogleApps
+namespace Authentiqr.NET
 {
     public partial class frmMain : Form
     {
@@ -84,11 +84,11 @@ namespace LCGoogleApps
                 StartupPrompt();
             }
 
-            if (settings.PatternEnabled == false)
+            if (settings.EncryptionMode == EncryptionMode.Basic)
             {
-                mnuUnlock.Text = "Lock Data";
-                settings.LoadAccounts();
-                InitAccounts();
+                mnuLockUnlock.Text = "Lock Data";
+                settings.Unlock();
+                AddAccounts();
             }
             else
             {
@@ -100,11 +100,11 @@ namespace LCGoogleApps
 
         private void StartupPrompt()
         {
-            var response = MessageBox.Show("Would you like to run LCGoogleApps on startup?", "Startup", MessageBoxButtons.YesNo);
+            var response = MessageBox.Show("Would you like to run Authentiqr.NET on startup?", "Authentiqr.NET", MessageBoxButtons.YesNo);
 
             if (response == DialogResult.Yes)
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "LCGoogleApps", Environment.CommandLine, RegistryValueKind.String);
+                settings.RunOnWindowsStartup();
             }
 
             settings.StartupPrompt = false;
@@ -198,7 +198,7 @@ namespace LCGoogleApps
                     settings.Accounts[accountName] = password;
                     settings.SaveAccounts();
 
-                    InitAccount(accountName, password);
+                    AddAccount(accountName, password);
                 }
             }
         }
@@ -208,7 +208,7 @@ namespace LCGoogleApps
             Application.Exit();
         }
 
-        private void mnuUnlock_Click(object sender, EventArgs e)
+        private void mnuLockUnlock_Click(object sender, EventArgs e)
         {
             using (frmPatternLock form = new frmPatternLock(settings))
             {
@@ -216,15 +216,15 @@ namespace LCGoogleApps
 
                 if (result == DialogResult.OK)
                 {
-                    if (settings.PatternEnabled)
+                    if (settings.EncryptionMode == EncryptionMode.Pattern)
                     {
                         try
                         {
                             // Perform unlock
                             settings.SetPattern(form.GetPattern());
-                            settings.LoadAccounts();
-                            InitAccounts();
-                            mnuUnlock.Visible = false;
+                            settings.Unlock();
+                            AddAccounts();
+                            mnuLockUnlock.Visible = false;
                             mnuAddAccount.Enabled = true;
                         }
                         catch (CryptographicException)
@@ -234,10 +234,8 @@ namespace LCGoogleApps
                     }
                     else
                     {
-                        // Perform lock
-                        mnuUnlock.Visible = false;
-
-                        settings.PatternEnabled = true;
+                        // Perform first lock
+                        mnuLockUnlock.Visible = false;
                         settings.SetPattern(form.GetPattern());
                         settings.SaveAccounts();
                     }
@@ -251,15 +249,15 @@ namespace LCGoogleApps
 
         #region Methods
 
-        private void InitAccounts()
+        private void AddAccounts()
         {
             foreach (var account in settings.Accounts.OrderByDescending(f => f.Key.ToLower()))
             {
-                InitAccount(account.Key, account.Value);
+                AddAccount(account.Key, account.Value);
             }
         }
 
-        private void InitAccount(string accountName, string key)
+        private void AddAccount(string accountName, string key)
         {
             ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, FindImage(accountName), mnuAccount_Click);
             ToolStripItem timeoutMenuItem = new ToolStripMenuItem(Generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);

@@ -1,4 +1,4 @@
-﻿namespace LCGoogleApps
+﻿namespace Authentiqr.NET
 {
     partial class frmPatternLock
     {

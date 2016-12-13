@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
-namespace LCGoogleApps
+namespace Authentiqr.NET
 {
 	static class Program
 	{

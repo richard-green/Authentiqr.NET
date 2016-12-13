@@ -1,4 +1,4 @@
-﻿namespace LCGoogleApps
+﻿namespace Authentiqr.NET
 {
 	partial class frmMain
 	{
@@ -34,7 +34,7 @@
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddAccount = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuUnlock = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuLockUnlock = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.tmrMain = new System.Windows.Forms.Timer(this.components);
             this.imageList = new System.Windows.Forms.ImageList(this.components);
@@ -44,8 +44,8 @@
             // notifyIcon
             // 
             this.notifyIcon.ContextMenuStrip = this.contextMenu;
-            this.notifyIcon.Icon = global::LCGoogleApps.Resources.Padlock;
-            this.notifyIcon.Text = "LCGoogleApps";
+            this.notifyIcon.Icon = global::Authentiqr.NET.Resources.Padlock;
+            this.notifyIcon.Text = "Authentiqr.NET";
             this.notifyIcon.Visible = true;
             // 
             // contextMenu
@@ -53,7 +53,7 @@
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuAddAccount,
             this.toolStripMenuItem2,
-            this.mnuUnlock,
+            this.mnuLockUnlock,
             this.mnuExit});
             this.contextMenu.Name = "contextMenuStrip1";
             this.contextMenu.Size = new System.Drawing.Size(145, 76);
@@ -70,12 +70,12 @@
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(141, 6);
             // 
-            // mnuUnlock
+            // mnuLockUnlock
             // 
-            this.mnuUnlock.Name = "mnuUnlock";
-            this.mnuUnlock.Size = new System.Drawing.Size(144, 22);
-            this.mnuUnlock.Text = "Unlock";
-            this.mnuUnlock.Click += new System.EventHandler(this.mnuUnlock_Click);
+            this.mnuLockUnlock.Name = "mnuLockUnlock";
+            this.mnuLockUnlock.Size = new System.Drawing.Size(144, 22);
+            this.mnuLockUnlock.Text = "Unlock";
+            this.mnuLockUnlock.Click += new System.EventHandler(this.mnuLockUnlock_Click);
             // 
             // mnuExit
             // 
@@ -106,11 +106,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(212, 76);
-            this.Icon = global::LCGoogleApps.Resources.Padlock;
+            this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.Location = new System.Drawing.Point(-1000, 0);
             this.Name = "frmMain";
             this.ShowInTaskbar = false;
-            this.Text = "LCGoogleApps";
+            this.Text = "Authentiqr.NET";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -125,7 +125,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuExit;
 		private System.Windows.Forms.Timer tmrMain;
 		private System.Windows.Forms.ToolStripMenuItem mnuAddAccount;
-        private System.Windows.Forms.ToolStripMenuItem mnuUnlock;
+        private System.Windows.Forms.ToolStripMenuItem mnuLockUnlock;
         private System.Windows.Forms.ImageList imageList;
     }
 }

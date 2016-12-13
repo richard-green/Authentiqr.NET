@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LCGoogleApps
+namespace Authentiqr.NET.Code
 {
 	public class Encryption
 	{

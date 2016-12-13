@@ -1,4 +1,4 @@
-﻿namespace LCGoogleApps
+﻿namespace Authentiqr.NET
 {
 	partial class frmAddAccount
 	{
@@ -158,7 +158,7 @@
             this.Controls.Add(this.txtAccountName);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = global::LCGoogleApps.Resources.Padlock;
+            this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmAddAccount";

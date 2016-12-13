@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace LCGoogleApps.Code
+namespace Authentiqr.NET.Code
 {
 	public class PasscodeGenerator
 	{

@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
-using LCGoogleApps.Code;
+using Authentiqr.NET.Code;
 
-namespace LCGoogleApps
+namespace Authentiqr.NET
 {
     public partial class frmAddAccount : Form
     {
@@ -147,7 +147,7 @@ namespace LCGoogleApps
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not read QR Code\r\n\r\n" + ex.Message + "\r\n\r\n" + ex.ToString(), "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not read QR Code\r\n\r\n" + ex.Message + "\r\n\r\n" + ex.ToString(), "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -253,12 +253,12 @@ namespace LCGoogleApps
                 }
                 else
                 {
-                    MessageBox.Show("The QR Code does not contain valid OAuth data", "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("The QR Code does not contain valid OAuth data", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("The QR Code could not be read", "LCGoogleApps", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("The QR Code could not be read", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

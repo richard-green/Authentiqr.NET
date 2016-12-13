@@ -1,120 +1,148 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LCGoogleApps.Code
+namespace Authentiqr.NET.Code
 {
     public class Settings
     {
-        public Dictionary<string, string> Accounts = new Dictionary<string, string>();
-        public bool PatternEnabled = false;
-        public int PatternWindowTop = 100;
-        public int PatternWindowLeft = 100;
-        public bool StartupPrompt = true;
+        public AccountData Accounts { get; private set; } = new AccountData();
+        public int AccountWindowTop { get; set; } = 200;
+        public int AccountWindowLeft { get; set; } = 200;
+        public int PatternWindowTop { get; set; } = 100;
+        public int PatternWindowLeft { get; set; } = 100;
+        public bool StartupPrompt { get; set; } = true;
+        public int EncryptionVersion { get; private set; } = 1;
+        public EncryptionMode EncryptionMode { get; private set; } = EncryptionMode.Basic;
 
+        private string encryptedData;
         private string pattern;
+        private SecureString password;
 
         public void LoadSettings()
         {
-            PatternEnabled = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
-            PatternWindowTop = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop)).GetValueOrDefault(100);
-            PatternWindowLeft = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft)).GetValueOrDefault(100);
-            StartupPrompt = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "StartupPrompt", 1)) == 1;
+            var settingsVersion = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SettingsVersion", 0)).GetValueOrDefault(0);
+
+            switch (settingsVersion)
+            {
+                case 1:
+                    AccountWindowTop = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowTop", AccountWindowTop));
+                    AccountWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowLeft", AccountWindowLeft));
+                    PatternWindowTop = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowTop", PatternWindowTop));
+                    PatternWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowLeft", PatternWindowLeft));
+                    StartupPrompt = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "StartupPrompt", 1)) == 1;
+                    EncryptionVersion = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", 1));
+                    EncryptionMode = (EncryptionMode)((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionMode", EncryptionMode.Basic));
+                    encryptedData = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", null);
+                    break;
+
+                case 0:
+                    var patternEnabled = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", 0)) == 1;
+                    PatternWindowTop = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop));
+                    PatternWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft));
+                    StartupPrompt = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "StartupPrompt", 1)) == 1;
+                    EncryptionMode = patternEnabled ? EncryptionMode.Pattern : EncryptionMode.Basic;
+                    encryptedData = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", null);
+                    Migrate(0);
+                    break;
+            }
         }
 
         public void SaveSettings()
         {
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternEnabled", PatternEnabled ? 1 : 0, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowTop", PatternWindowTop, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "PatternWindowLeft", PatternWindowLeft, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "StartupPrompt", StartupPrompt ? 1 : 0, RegistryValueKind.DWord);
-        }
-
-        public void LoadAccounts()
-        {
-            var registryValue = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty);
-
-            if (String.IsNullOrEmpty(registryValue) == false)
-            {
-                // Multiple Accounts in the user registry
-
-                Accounts = ParseAccountsData(DecryptData(registryValue));
-            }
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SettingsVersion", 1, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowTop", AccountWindowTop, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowLeft", AccountWindowLeft, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowTop", PatternWindowTop, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowLeft", PatternWindowLeft, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "StartupPrompt", StartupPrompt ? 1 : 0, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", EncryptionVersion, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionMode", EncryptionMode, RegistryValueKind.DWord);
         }
 
         public void SaveAccounts()
         {
-            if (Accounts.Count > 0)
+            encryptedData = Encrypt(Accounts.Data);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", encryptedData, RegistryValueKind.String);
+        }
+
+        public void Unlock()
+        {
+            Accounts = AccountData.Parse(Decrypt(encryptedData));
+        }
+
+        public void SetPattern(string pattern)
+        {
+            this.EncryptionMode = EncryptionMode.Pattern;
+            this.pattern = pattern;
+        }
+
+        public void SetPassword(SecureString password)
+        {
+            this.EncryptionMode = EncryptionMode.Password;
+            this.password = password;
+        }
+
+        private string Encrypt(string data)
+        {
+            if (String.IsNullOrEmpty(data)) return String.Empty;
+
+            switch (EncryptionMode)
             {
-                string accountsData = EncryptData(GenerateAccountsData(Accounts));
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", accountsData, RegistryValueKind.String);
-            }
-            else
-            {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\LCGoogleApps", "encAccounts", String.Empty, RegistryValueKind.String);
+                case EncryptionMode.Basic:
+                case EncryptionMode.Pattern:
+                    return Encryption.ToBase64(Encryption.Encrypt(data, CreateAlgorithm()));
+                default:
+                    throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
             }
         }
 
-        private string GenerateAccountsData(Dictionary<string, string> accounts)
+        private string Decrypt(string encData)
         {
-            string[] accountData = new string[accounts.Count];
-            int i = 0;
+            if (String.IsNullOrEmpty(encData)) return String.Empty;
 
-            foreach (var account in accounts)
+            switch (EncryptionMode)
             {
-                accountData[i++] = String.Format("{0}@{1}",
-                    Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Key)),
-                    Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(account.Value)));
+                case EncryptionMode.Basic:
+                case EncryptionMode.Pattern:
+                    return Encryption.Decrypt(Encryption.FromBase64(encData), CreateAlgorithm());
+                default:
+                    throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
             }
-
-            return String.Join("*", accountData);
-        }
-
-        private Dictionary<string, string> ParseAccountsData(string data)
-        {
-            if (String.IsNullOrEmpty(data))
-            {
-                return new Dictionary<string, string>();
-            }
-            else
-            {
-                Dictionary<string, string> output = new Dictionary<string, string>();
-                string[] accountData = data.Split('*');
-
-                foreach (var account in accountData)
-                {
-                    string[] kvp = account.Split('@');
-                    kvp[0] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[0]));
-                    kvp[1] = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(kvp[1]));
-                    output[kvp[0]] = kvp[1];
-                }
-
-                return output;
-            }
-        }
-
-        private string EncryptData(string data)
-        {
-            return Encryption.ToBase64(Encryption.Encrypt(data, CreateAlgorithm()));
-        }
-
-        private string DecryptData(string encData)
-        {
-            return Encryption.Decrypt(Encryption.FromBase64(encData), CreateAlgorithm());
         }
 
         private SymmetricAlgorithm CreateAlgorithm()
         {
             string sid = System.Security.Principal.WindowsIdentity.GetCurrent().User.Value;
-            return Encryption.CreateCryptoAlgorithm(PatternEnabled ? Encryption.GeneratePasswordHash(pattern, sid) : sid, "LCGoogleApps");
+            return Encryption.CreateCryptoAlgorithm(EncryptionMode == EncryptionMode.Pattern ? Encryption.GeneratePasswordHash(pattern, sid) : sid, "LCGoogleApps");
         }
 
-        public void SetPattern(string pattern)
+        private void Migrate(int currentVersion)
         {
-            this.PatternEnabled = true;
-            this.pattern = pattern;
+            switch (currentVersion)
+            {
+                case 0:
+                    SaveSettings();
+                    Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", encryptedData, RegistryValueKind.String);
+                    Registry.CurrentUser.DeleteSubKey(@"Software\LCGoogleApps");
+                    var startup = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "LCGoogleApps", String.Empty);
+                    if (startup != String.Empty)
+                    {
+                        RunOnWindowsStartup();
+                        Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true).DeleteValue("LCGoogleApps");
+                    }
+                    break;
+            }
+        }
+
+        public void RunOnWindowsStartup()
+        {
+            var path = Path.Combine(Environment.CurrentDirectory, "Authentiqr.NET.exe");
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "Authentiqr.NET", path, RegistryValueKind.String);
         }
     }
 }
