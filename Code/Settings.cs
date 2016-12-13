@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LCGoogleApps
+namespace LCGoogleApps.Code
 {
     public class Settings
     {

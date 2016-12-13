@@ -13,8 +13,9 @@ namespace LCGoogleApps
 		[STAThread]
 		static void Main(string[] args)
 		{
-			//Make sure only one instance with the form is displayed
+			// Make sure only one instance with the form is displayed
 			bool firstInstance;
+
 			using (instanceMutex = new System.Threading.Mutex(true, "{9369686F-9050-4353-8637-2190C5536FF7}", out firstInstance))
 			{
 				if (!firstInstance)

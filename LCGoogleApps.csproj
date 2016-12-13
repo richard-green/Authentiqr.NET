@@ -57,8 +57,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base32.cs" />
-    <Compile Include="Encryption.cs" />
+    <Compile Include="Code\Base32.cs" />
+    <Compile Include="Code\Encryption.cs" />
+    <Compile Include="Code\Settings.cs" />
     <Compile Include="frmAddAccount.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,8 +78,7 @@
     <Compile Include="frmPatternLock.Designer.cs">
       <DependentUpon>frmPatternLock.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputBox.cs" />
-    <Compile Include="PasscodeGenerator.cs" />
+    <Compile Include="Code\PasscodeGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -86,7 +86,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <EmbeddedResource Include="frmAddAccount.resx">
       <DependentUpon>frmAddAccount.cs</DependentUpon>
     </EmbeddedResource>
