@@ -1,10 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Authentiqr.NET.Code
 {
