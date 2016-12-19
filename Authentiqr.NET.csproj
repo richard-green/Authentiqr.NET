@@ -63,7 +63,9 @@
     <Compile Include="Code\Base32.cs" />
     <Compile Include="Code\Encryption.cs" />
     <Compile Include="Code\EncryptionMode.cs" />
+    <Compile Include="Code\SecureStringExtensions.cs" />
     <Compile Include="Code\Settings.cs" />
+    <Compile Include="Code\SymmetricEncryption.cs" />
     <Compile Include="frmAddAccount.cs">
       <SubType>Form</SubType>
     </Compile>

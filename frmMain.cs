@@ -119,7 +119,16 @@ namespace Authentiqr.NET
                 case SessionSwitchReason.SessionLogoff:
                 case SessionSwitchReason.RemoteDisconnect:
                 case SessionSwitchReason.ConsoleDisconnect:
-                    // ToDo - Lock the 2FA data when the machine is locked
+                    // Lock the 2FA data when the machine is locked
+                    for (int i = 0; i < settings.Accounts.Count * 3; i++)
+                    {
+                        contextMenu.Items.RemoveAt(0);
+                    }
+                    settings.Lock();
+                    TimeoutMenuItems.Clear();
+                    tmrMain.Enabled = false;
+                    mnuLockUnlock.Visible = true;
+                    mnuAddAccount.Enabled = false;
                     break;
             }
         }

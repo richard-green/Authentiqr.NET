@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Authentiqr.NET.Code
 {
-    public class Encryption
+    public class EncryptionV1
     {
         private const string CryptoKey = "496f1a09cce8b429725ceca93d29adaad4bb97bc0870dda39d42c78be8c74f65";
         private const string CryptoIV = "4e3eb5fa6d3c7146d5332a2f58867c95";
@@ -18,7 +18,7 @@ namespace Authentiqr.NET.Code
         /// <summary>
         /// Static constructor
         /// </summary>
-        static Encryption()
+        static EncryptionV1()
         {
             Hasher = SHA256.Create();
         }
@@ -46,6 +46,11 @@ namespace Authentiqr.NET.Code
             algorithm.Key = keyHash;
             algorithm.IV = ivHash.Take(algorithm.BlockSize / 8).ToArray();
             return algorithm;
+        }
+
+        public static byte[] Encrypt(string plainText, SymmetricAlgorithm algorithm)
+        {
+            return Encrypt(Encoding.UTF8.GetBytes(plainText), algorithm);
         }
 
         public static byte[] Encrypt(byte[] data, SymmetricAlgorithm algorithm)
@@ -98,11 +103,6 @@ namespace Authentiqr.NET.Code
 
             // Return the encrypted bytes from the memory stream
             return encryptedData;
-        }
-
-        public static byte[] Encrypt(string plainText, SymmetricAlgorithm algorithm)
-        {
-            return Encrypt(Encoding.UTF8.GetBytes(plainText), algorithm);
         }
 
         public static string Decrypt(byte[] cipherText, SymmetricAlgorithm algorithm)
@@ -161,11 +161,6 @@ namespace Authentiqr.NET.Code
         public static byte[] Hash(byte[] data)
         {
             return Hasher.ComputeHash(data);
-        }
-
-        public static string GenerateSalt()
-        {
-            return Base64.Encode(Hash(DateTime.Now.Ticks.ToString()));
         }
 
         public static string GeneratePasswordHash(string salt, string password)
