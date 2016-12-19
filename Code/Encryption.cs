@@ -27,8 +27,8 @@ namespace Authentiqr.NET.Code
         {
             return new AesManaged()
             {
-                Key = FromHex(CryptoKey),
-                IV = FromHex(CryptoIV)
+                Key = Hex.Decode(CryptoKey),
+                IV = Hex.Decode(CryptoIV)
             };
         }
 
@@ -48,7 +48,7 @@ namespace Authentiqr.NET.Code
             return algorithm;
         }
 
-        public static byte[] Encrypt(byte[] data, SymmetricAlgorithm algorithm = null)
+        public static byte[] Encrypt(byte[] data, SymmetricAlgorithm algorithm)
         {
             // Check arguments
             if (data == null || data.Length <= 0)
@@ -57,7 +57,7 @@ namespace Authentiqr.NET.Code
             }
             if (algorithm == null)
             {
-                algorithm = GetCryptoAlgorithm();
+                throw new ArgumentNullException("algorithm");
             }
             if (algorithm.Key == null || algorithm.Key.Length <= 0)
             {
@@ -100,12 +100,12 @@ namespace Authentiqr.NET.Code
             return encryptedData;
         }
 
-        public static byte[] Encrypt(string plainText, SymmetricAlgorithm algorithm = null)
+        public static byte[] Encrypt(string plainText, SymmetricAlgorithm algorithm)
         {
             return Encrypt(Encoding.UTF8.GetBytes(plainText), algorithm);
         }
 
-        public static string Decrypt(byte[] cipherText, SymmetricAlgorithm algorithm = null)
+        public static string Decrypt(byte[] cipherText, SymmetricAlgorithm algorithm)
         {
             // Check arguments
             if (cipherText == null || cipherText.Length <= 0)
@@ -114,7 +114,7 @@ namespace Authentiqr.NET.Code
             }
             if (algorithm == null)
             {
-                algorithm = GetCryptoAlgorithm();
+                throw new ArgumentNullException("algorithm");
             }
             if (algorithm.Key == null || algorithm.Key.Length <= 0)
             {
@@ -163,47 +163,21 @@ namespace Authentiqr.NET.Code
             return Hasher.ComputeHash(data);
         }
 
-        public static string ToHex(byte[] data)
-        {
-            return BitConverter.ToString(data).Replace("-", String.Empty).ToLower();
-        }
-
-        public static byte[] FromHex(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-            {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            }
-            return bytes;
-        }
-
-        public static string ToBase64(byte[] data)
-        {
-            return Convert.ToBase64String(data);
-        }
-
-        public static byte[] FromBase64(string base64)
-        {
-            return Convert.FromBase64String(base64);
-        }
-
         public static string GenerateSalt()
         {
-            return ToBase64(Hash(DateTime.Now.Ticks.ToString()));
+            return Base64.Encode(Hash(DateTime.Now.Ticks.ToString()));
         }
 
         public static string GeneratePasswordHash(string salt, string password)
         {
-            byte[] hash = Hash(salt + FixedSalt + ToBase64(Encrypt(password)));
+            byte[] hash = Hash(salt + FixedSalt + Base64.Encode(Encrypt(password, GetCryptoAlgorithm())));
 
             for (int i = 1; i < HashRounds; i++)
             {
                 hash = Hash(hash);
             }
 
-            return ToBase64(hash);
+            return Base64.Encode(hash);
         }
     }
 }

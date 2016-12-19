@@ -93,7 +93,7 @@ namespace Authentiqr.NET.Code
             {
                 case EncryptionMode.Basic:
                 case EncryptionMode.Pattern:
-                    return Encryption.ToBase64(Encryption.Encrypt(data, CreateAlgorithm()));
+                    return Base64.Encode(Encryption.Encrypt(data, CreateAlgorithm()));
                 default:
                     throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
             }
@@ -107,7 +107,7 @@ namespace Authentiqr.NET.Code
             {
                 case EncryptionMode.Basic:
                 case EncryptionMode.Pattern:
-                    return Encryption.Decrypt(Encryption.FromBase64(encData), CreateAlgorithm());
+                    return Encryption.Decrypt(Base64.Decode(encData), CreateAlgorithm());
                 default:
                     throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
             }

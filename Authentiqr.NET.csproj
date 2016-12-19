@@ -58,6 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Code\AccountData.cs" />
+    <Compile Include="Code\Hex.cs" />
+    <Compile Include="Code\Base64.cs" />
     <Compile Include="Code\Base32.cs" />
     <Compile Include="Code\Encryption.cs" />
     <Compile Include="Code\EncryptionMode.cs" />
