@@ -89,7 +89,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(325, 415);
+            this.btnOK.Location = new System.Drawing.Point(325, 414);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 4;
@@ -100,7 +100,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(244, 415);
+            this.btnCancel.Location = new System.Drawing.Point(244, 414);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
@@ -115,7 +115,7 @@
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(163, 415);
+            this.btnRemove.Location = new System.Drawing.Point(163, 414);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 4;
@@ -167,6 +167,7 @@
             this.Load += new System.EventHandler(this.frmAddAccount_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragEnter);
+            this.Move += new System.EventHandler(this.frmAddAccount_Move);
             ((System.ComponentModel.ISupportInitialize)(this.pbQRCode)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -158,7 +158,7 @@ namespace Authentiqr.NET
             ToolStripItem timeoutMenuItem = accountMenuItem.Tag as ToolStripItem;
             string oldPassword = timeoutMenuItem.Tag as string;
 
-            using (frmAddAccount form = new frmAddAccount())
+            using (frmAddAccount form = new frmAddAccount(settings))
             {
                 form.ShowRemove(true);
                 form.AccountName = oldAccountName;
@@ -188,6 +188,7 @@ namespace Authentiqr.NET
                         contextMenu.Items.RemoveAt(ix); // remove account name
                     }
 
+                    settings.SaveSettings();
                     settings.SaveAccounts();
                 }
             }
@@ -195,7 +196,7 @@ namespace Authentiqr.NET
 
         private void mnuAddAccount_Click(object sender, EventArgs e)
         {
-            using (frmAddAccount form = new frmAddAccount())
+            using (frmAddAccount form = new frmAddAccount(settings))
             {
                 DialogResult result = form.ShowDialog(this);
 
@@ -205,6 +206,8 @@ namespace Authentiqr.NET
                     string accountName = form.AccountName;
 
                     settings.Accounts[accountName] = password;
+
+                    settings.SaveSettings();
                     settings.SaveAccounts();
 
                     AddAccount(accountName, password);

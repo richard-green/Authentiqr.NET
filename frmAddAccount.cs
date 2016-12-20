@@ -14,6 +14,9 @@ namespace Authentiqr.NET
     {
         #region Properties
 
+        private Settings settings;
+        private bool constructing = true;
+
         public string AccountName
         {
             get { return txtAccountName.Text; }
@@ -56,9 +59,14 @@ namespace Authentiqr.NET
 
         #region Constructor
 
-        public frmAddAccount()
+        public frmAddAccount(Settings settings)
         {
             InitializeComponent();
+            this.settings = settings;
+            this.StartPosition = FormStartPosition.Manual;
+            this.Top = settings.AccountWindowTop;
+            this.Left = settings.AccountWindowLeft;
+            constructing = false;
         }
 
         #endregion Constructor
@@ -163,13 +171,25 @@ namespace Authentiqr.NET
 
         private void pbQRCode_DoubleClick(object sender, EventArgs e)
         {
-            saveFileDialog.FileName = String.Format("{0}.png", AccountName);
-            saveFileDialog.ShowDialog();
+            if (IsValid)
+            {
+                saveFileDialog.FileName = String.Format("{0}.png", AccountName);
+                saveFileDialog.ShowDialog();
+            }
         }
 
         private void saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             pbQRCode.Image.Save(saveFileDialog.FileName);
+        }
+
+        private void frmAddAccount_Move(object sender, EventArgs e)
+        {
+            if (constructing == false)
+            {
+                settings.AccountWindowTop = this.Top;
+                settings.AccountWindowLeft = this.Left;
+            }
         }
 
         #endregion User Events
@@ -191,6 +211,7 @@ namespace Authentiqr.NET
                 if (String.IsNullOrEmpty(Key))
                 {
                     IsValid = false;
+                    Message = "Password is blank";
                     return;
                 }
 
