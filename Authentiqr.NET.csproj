@@ -61,16 +61,16 @@
     <Compile Include="Code\Hex.cs" />
     <Compile Include="Code\Base64.cs" />
     <Compile Include="Code\Base32.cs" />
-    <Compile Include="Code\Encryption.cs" />
+    <Compile Include="Code\EncryptionV1.cs" />
     <Compile Include="Code\EncryptionMode.cs" />
     <Compile Include="Code\SecureStringExtensions.cs" />
     <Compile Include="Code\Settings.cs" />
     <Compile Include="Code\SymmetricEncryption.cs" />
-    <Compile Include="frmAddAccount.cs">
+    <Compile Include="frmAccount.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmAddAccount.Designer.cs">
-      <DependentUpon>frmAddAccount.cs</DependentUpon>
+    <Compile Include="frmAccount.Designer.cs">
+      <DependentUpon>frmAccount.cs</DependentUpon>
     </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
@@ -92,8 +92,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="frmAddAccount.resx">
-      <DependentUpon>frmAddAccount.cs</DependentUpon>
+    <EmbeddedResource Include="frmAccount.resx">
+      <DependentUpon>frmAccount.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>

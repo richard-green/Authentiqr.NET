@@ -56,31 +56,31 @@
             this.mnuLockUnlock,
             this.mnuExit});
             this.contextMenu.Name = "contextMenuStrip1";
-            this.contextMenu.Size = new System.Drawing.Size(145, 76);
+            this.contextMenu.Size = new System.Drawing.Size(153, 98);
             // 
             // mnuAddAccount
             // 
             this.mnuAddAccount.Name = "mnuAddAccount";
-            this.mnuAddAccount.Size = new System.Drawing.Size(144, 22);
+            this.mnuAddAccount.Size = new System.Drawing.Size(152, 22);
             this.mnuAddAccount.Text = "Add Account";
             this.mnuAddAccount.Click += new System.EventHandler(this.mnuAddAccount_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(141, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
             // 
             // mnuLockUnlock
             // 
             this.mnuLockUnlock.Name = "mnuLockUnlock";
-            this.mnuLockUnlock.Size = new System.Drawing.Size(144, 22);
+            this.mnuLockUnlock.Size = new System.Drawing.Size(152, 22);
             this.mnuLockUnlock.Text = "Unlock";
             this.mnuLockUnlock.Click += new System.EventHandler(this.mnuLockUnlock_Click);
             // 
             // mnuExit
             // 
             this.mnuExit.Name = "mnuExit";
-            this.mnuExit.Size = new System.Drawing.Size(144, 22);
+            this.mnuExit.Size = new System.Drawing.Size(152, 22);
             this.mnuExit.Text = "Exit";
             this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
             // 

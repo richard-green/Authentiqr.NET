@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -46,6 +47,34 @@ namespace Authentiqr.NET.Code
             {
                 Marshal.ZeroFreeBSTR(bstr);
             }
+        }
+
+        /// <summary>
+        /// Concatenates two SecureStrings together, returning a new combined SecureString
+        /// </summary>
+        /// <param name="secureString"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static SecureString Concat(this SecureString secureString, SecureString other)
+        {
+            var result = secureString.Copy();
+            other.Use((s) => result.AppendChars(s));
+            return result;
+        }
+
+        /// <summary>
+        /// Adds multiple characters to a SecureString
+        /// </summary>
+        /// <param name="secureString"></param>
+        /// <param name="chars"></param>
+        public static SecureString AppendChars(this SecureString secureString, IEnumerable<char> chars)
+        {
+            foreach (var c in chars)
+            {
+                secureString.AppendChar(c);
+            }
+
+            return secureString;
         }
     }
 }

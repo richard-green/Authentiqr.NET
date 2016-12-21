@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Authentiqr.NET.Code;
+using System.Security;
 
 namespace Authentiqr.NET
 {
@@ -137,7 +138,7 @@ namespace Authentiqr.NET
         {
             foreach (var item in TimeoutMenuItems)
             {
-                item.Text = Generator.GenerateTimeoutCode(item.Tag as string);
+                item.Text = Generator.GenerateTimeoutCode(settings.Accounts[item.Tag as string]);
             }
         }
 
@@ -156,29 +157,26 @@ namespace Authentiqr.NET
             ToolStripItem accountMenuItem = sender as ToolStripItem;
             string oldAccountName = accountMenuItem.Text;
             ToolStripItem timeoutMenuItem = accountMenuItem.Tag as ToolStripItem;
-            string oldPassword = timeoutMenuItem.Tag as string;
 
-            using (frmAddAccount form = new frmAddAccount(settings))
+            using (frmAccount form = new frmAccount(settings))
             {
                 form.ShowRemove(true);
                 form.AccountName = oldAccountName;
-                form.SetKey(oldPassword);
+                form.Key = settings.Accounts[oldAccountName].Use(p => p);
                 DialogResult result = form.ShowDialog(this);
 
-                if (result == DialogResult.OK)
+                if (result == DialogResult.OK && form.IsKeyValid)
                 {
                     settings.Accounts.Remove(oldAccountName);
 
-                    string password = form.Key;
                     string accountName = form.AccountName;
 
-                    if (String.IsNullOrEmpty(accountName) == false &&
-                        String.IsNullOrEmpty(password) == false)
+                    if (String.IsNullOrEmpty(accountName) == false)
                     {
-                        settings.Accounts[accountName] = password;
+                        settings.Accounts[accountName] = new SecureString().AppendChars(form.Key);
 
                         accountMenuItem.Text = accountName;
-                        timeoutMenuItem.Tag = password;
+                        timeoutMenuItem.Tag = accountName;
                     }
                     else
                     {
@@ -196,7 +194,7 @@ namespace Authentiqr.NET
 
         private void mnuAddAccount_Click(object sender, EventArgs e)
         {
-            using (frmAddAccount form = new frmAddAccount(settings))
+            using (frmAccount form = new frmAccount(settings))
             {
                 DialogResult result = form.ShowDialog(this);
 
@@ -205,12 +203,12 @@ namespace Authentiqr.NET
                     string password = Regex.Replace(form.Key, "\\s", "");
                     string accountName = form.AccountName;
 
-                    settings.Accounts[accountName] = password;
+                    settings.Accounts[accountName] = new SecureString().AppendChars(password);
 
                     settings.SaveSettings();
                     settings.SaveAccounts();
 
-                    AddAccount(accountName, password);
+                    AddAccount(accountName, settings.Accounts[accountName]);
                 }
             }
         }
@@ -269,7 +267,7 @@ namespace Authentiqr.NET
             }
         }
 
-        private void AddAccount(string accountName, string key)
+        private void AddAccount(string accountName, SecureString key)
         {
             ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, FindImage(accountName), mnuAccount_Click);
             ToolStripItem timeoutMenuItem = new ToolStripMenuItem(Generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
@@ -278,7 +276,7 @@ namespace Authentiqr.NET
             TimeoutMenuItems.Add(timeoutMenuItem);
 
             accountMenuItem.Tag = timeoutMenuItem;
-            timeoutMenuItem.Tag = key;
+            timeoutMenuItem.Tag = accountName;
 
             contextMenu.Items.Insert(0, separator);
             contextMenu.Items.Insert(0, timeoutMenuItem);

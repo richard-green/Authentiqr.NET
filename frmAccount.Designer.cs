@@ -1,6 +1,6 @@
 ﻿namespace Authentiqr.NET
 {
-	partial class frmAddAccount
+	partial class frmAccount
 	{
 		/// <summary>
 		/// Required designer variable.

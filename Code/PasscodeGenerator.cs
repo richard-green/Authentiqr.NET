@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 using System.Security.Cryptography;
 
 namespace Authentiqr.NET.Code
@@ -23,6 +24,11 @@ namespace Authentiqr.NET.Code
         public string ToHex(byte[] data)
         {
             return BitConverter.ToString(data).Replace("-", String.Empty).ToLower();
+        }
+
+        public string GenerateTimeoutCode(SecureString password)
+        {
+            return password.Use(p => GenerateTimeoutCode(p));
         }
 
         public string GenerateTimeoutCode(string password)

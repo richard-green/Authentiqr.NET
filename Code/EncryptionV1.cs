@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -39,6 +40,22 @@ namespace Authentiqr.NET.Code
         /// <param name="iv"></param>
         /// <returns></returns>
         public static SymmetricAlgorithm CreateCryptoAlgorithm(string key, string iv)
+        {
+            AesManaged algorithm = new AesManaged();
+            byte[] keyHash = Hash(key);
+            byte[] ivHash = Hash(iv);
+            algorithm.Key = keyHash;
+            algorithm.IV = ivHash.Take(algorithm.BlockSize / 8).ToArray();
+            return algorithm;
+        }
+
+        /// <summary>
+        /// Generate a crypto algorithm, using a derived Key and IV. Key and IV will be hashed before usage.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="iv"></param>
+        /// <returns></returns>
+        public static SymmetricAlgorithm CreateCryptoAlgorithm(SecureString key, SecureString iv)
         {
             AesManaged algorithm = new AesManaged();
             byte[] keyHash = Hash(key);
@@ -158,6 +175,14 @@ namespace Authentiqr.NET.Code
             return Hasher.ComputeHash(Encoding.UTF8.GetBytes(data));
         }
 
+        public static byte[] Hash(SecureString data)
+        {
+            return data.Use(s =>
+            {
+                return Hasher.ComputeHash(Encoding.UTF8.GetBytes(s));
+            });
+        }
+
         public static byte[] Hash(byte[] data)
         {
             return Hasher.ComputeHash(data);
@@ -173,6 +198,17 @@ namespace Authentiqr.NET.Code
             }
 
             return Base64.Encode(hash);
+        }
+
+        public static SecureString GeneratePasswordHash(SecureString salt, SecureString password)
+        {
+            return salt.Use(s =>
+            {
+                return password.Use(p =>
+                {
+                    return new SecureString().AppendChars(GeneratePasswordHash(s, p));
+                });
+            });
         }
     }
 }

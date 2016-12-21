@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Authentiqr.NET.Code
@@ -19,14 +18,14 @@ namespace Authentiqr.NET.Code
         public EncryptionMode EncryptionMode { get; private set; } = EncryptionMode.Basic;
 
         private string encryptedData;
-        private string pattern;
+        private SecureString pattern;
         private SecureString password;
-        private string sid;
+        private SecureString userId;
 
         public void LoadSettings()
         {
             var settingsVersion = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SettingsVersion", 0)).GetValueOrDefault(0);
-            sid = System.Security.Principal.WindowsIdentity.GetCurrent().User.Value;
+            userId = new SecureString().AppendChars(System.Security.Principal.WindowsIdentity.GetCurrent().User.Value);
 
             switch (settingsVersion)
             {
@@ -90,7 +89,7 @@ namespace Authentiqr.NET.Code
             pattern = null;
         }
 
-        public void SetPattern(string pattern)
+        public void SetPattern(SecureString pattern)
         {
             this.EncryptionMode = EncryptionMode.Pattern;
             this.pattern = pattern;
@@ -113,9 +112,9 @@ namespace Authentiqr.NET.Code
                 switch (EncryptionMode)
                 {
                     case EncryptionMode.Basic:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, sid));
+                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, userId));
                     case EncryptionMode.Pattern:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, pattern + sid));
+                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, pattern.Concat(userId)));
                     case EncryptionMode.Password:
                         return Base64.Encode(SymmetricEncryption.Encrypt(bytes, password));
                     default:
@@ -134,7 +133,9 @@ namespace Authentiqr.NET.Code
 
             if (EncryptionVersion == 1)
             {
-                var algorithm = EncryptionV1.CreateCryptoAlgorithm(EncryptionMode == EncryptionMode.Pattern ? EncryptionV1.GeneratePasswordHash(pattern, sid) : sid, "LCGoogleApps");
+                var key = EncryptionMode == EncryptionMode.Pattern ? EncryptionV1.GeneratePasswordHash(pattern, userId) : userId;
+                var iv = new SecureString().AppendChars("LCGoogleApps");
+                var algorithm = EncryptionV1.CreateCryptoAlgorithm(key, iv);
                 return EncryptionV1.Decrypt(Base64.Decode(encData), algorithm);
             }
             else if (EncryptionVersion == 2)
@@ -144,9 +145,9 @@ namespace Authentiqr.NET.Code
                 switch (EncryptionMode)
                 {
                     case EncryptionMode.Basic:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, sid));
+                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, userId));
                     case EncryptionMode.Pattern:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, pattern + sid));
+                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, pattern.Concat(userId)));
                     case EncryptionMode.Password:
                         return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password));
                     default:

@@ -17,25 +17,23 @@ namespace Authentiqr.NET.Code
 
         /// <summary>
         /// Encrypts the plainText input using the given Key.
-        /// A 128 bit random salt will be generated and prepended to the ciphertext before it is base64 encoded.
+        /// A 128 bit random salt will be generated and prepended to the ciphertext before it is returned.
         /// </summary>
         /// <param name="plainText">The plain text to encrypt.</param>
         /// <param name="password">The plain text encryption key.</param>
-        /// <returns>The salt and the ciphertext, Base64 encoded for convenience.</returns>
+        /// <returns>The salt and the ciphertext</returns>
         public static byte[] Encrypt(byte[] plainText, string password)
         {
             if (plainText == null || plainText.Length == 0) throw new ArgumentNullException("plainText");
             if (string.IsNullOrEmpty(password)) throw new ArgumentNullException("password");
 
-            // Derive a new Salt and IV from the Key
+            // Derive a new Salt, Key, and IV from the password
             using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, SaltSize))
             {
                 var saltBytes = keyDerivationFunction.Salt;
                 var keyBytes = keyDerivationFunction.GetBytes(32);
                 var ivBytes = keyDerivationFunction.GetBytes(16);
 
-                // Create an encryptor to perform the stream transform.
-                // Create the streams used for encryption.
                 using (var aesManaged = new AesManaged())
                 using (var encryptor = aesManaged.CreateEncryptor(keyBytes, ivBytes))
                 using (var memoryStream = new MemoryStream())
@@ -43,11 +41,9 @@ namespace Authentiqr.NET.Code
                 {
                     using (var streamWriter = new BinaryWriter(cryptoStream))
                     {
-                        // Send the data through the StreamWriter, through the CryptoStream, to the underlying MemoryStream
                         streamWriter.Write(plainText);
                     }
 
-                    // Return the encrypted bytes from the memory stream, in Base64 form so we can send it right to a database (if we want).
                     var cipherTextBytes = memoryStream.ToArray();
                     Array.Resize(ref saltBytes, saltBytes.Length + cipherTextBytes.Length);
                     Array.Copy(cipherTextBytes, 0, saltBytes, SaltSize, cipherTextBytes.Length);
@@ -79,7 +75,7 @@ namespace Authentiqr.NET.Code
 
             using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, saltBytes))
             {
-                // Derive the previous IV from the Key and Salt
+                // Derive the previous Key and IV from the password and salt
                 var keyBytes = keyDerivationFunction.GetBytes(32);
                 var ivBytes = keyDerivationFunction.GetBytes(16);
 

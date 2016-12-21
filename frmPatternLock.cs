@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Authentiqr.NET.Code;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Security;
 using System.Windows.Forms;
-using Authentiqr.NET.Code;
 
 namespace Authentiqr.NET
 {
@@ -25,9 +26,16 @@ namespace Authentiqr.NET
             constructing = false;
         }
 
-        public string GetPattern()
+        public SecureString GetPattern()
         {
-            return String.Join("", pattern.Select(i => i.ToString()).ToArray());
+            var result = new SecureString();
+
+            foreach (var chr in pattern.Select(i => i.ToString()[0]))
+            {
+                result.AppendChar(chr);
+            }
+
+            return result;
         }
 
         private void btnOK_Click(object sender, EventArgs e)

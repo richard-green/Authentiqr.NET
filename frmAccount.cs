@@ -10,12 +10,13 @@ using Authentiqr.NET.Code;
 
 namespace Authentiqr.NET
 {
-    public partial class frmAddAccount : Form
+    public partial class frmAccount : Form
     {
         #region Properties
 
         private Settings settings;
         private bool constructing = true;
+        private PasscodeGenerator generator = new PasscodeGenerator();
 
         public string AccountName
         {
@@ -25,41 +26,54 @@ namespace Authentiqr.NET
 
         public string Key
         {
-            get { return txtKey.Text; }
-            private set { txtKey.Text = value; }
-        }
-
-        public bool IsValid
-        {
-            get;
-            set;
-        }
-
-        public string Message
-        {
-            get;
-            set;
-        }
-
-        private PasscodeGenerator generator;
-        protected PasscodeGenerator Generator
-        {
             get
             {
-                if (generator == null)
-                {
-                    generator = new PasscodeGenerator();
-                }
+                return txtKey.Text;
+            }
+            set
+            {
+                txtKey.Text = Regex.Replace(value, "\\s", "");
+                Message = "";
 
-                return generator;
+                try
+                {
+                    if (String.IsNullOrEmpty(txtKey.Text))
+                    {
+                        IsKeyValid = false;
+                        Message = "Password is blank";
+                        return;
+                    }
+
+                    lblCode.Text = generator.GenerateTimeoutCode(txtKey.Text);
+                    lblCode.Visible = true;
+                    IsKeyValid = true;
+                    tmrMain.Enabled = true;
+                    txtKey.ForeColor = Color.Black;
+                }
+                catch (Exception ex)
+                {
+                    lblCode.Visible = false;
+                    tmrMain.Enabled = false;
+                    IsKeyValid = false;
+                    Message = ex.Message;
+                    txtKey.ForeColor = Color.Red;
+                }
+                finally
+                {
+                    RenderQRCode();
+                }
             }
         }
+
+        public bool IsKeyValid { get; set; }
+
+        public string Message { get; set; }
 
         #endregion Properties
 
         #region Constructor
 
-        public frmAddAccount(Settings settings)
+        public frmAccount(Settings settings)
         {
             InitializeComponent();
             this.settings = settings;
@@ -80,9 +94,9 @@ namespace Authentiqr.NET
 
         private void tmrMain_Tick(object sender, EventArgs e)
         {
-            if (IsValid)
+            if (IsKeyValid)
             {
-                lblCode.Text = Generator.GenerateTimeoutCode(Key);
+                lblCode.Text = generator.GenerateTimeoutCode(Key);
             }
             else
             {
@@ -96,7 +110,7 @@ namespace Authentiqr.NET
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (IsValid)
+            if (IsKeyValid)
             {
                 DialogResult = DialogResult.OK;
             }
@@ -131,7 +145,7 @@ namespace Authentiqr.NET
 
         private void txtKey_KeyUp(object sender, KeyEventArgs e)
         {
-            SetKey(txtKey.Text);
+            Key = txtKey.Text;
         }
 
         private void frmAddAccount_DragDrop(object sender, DragEventArgs e)
@@ -171,7 +185,7 @@ namespace Authentiqr.NET
 
         private void pbQRCode_DoubleClick(object sender, EventArgs e)
         {
-            if (IsValid)
+            if (IsKeyValid)
             {
                 saveFileDialog.FileName = String.Format("{0}.png", AccountName);
                 saveFileDialog.ShowDialog();
@@ -202,42 +216,9 @@ namespace Authentiqr.NET
             btnRemove.Enabled = visible;
         }
 
-        public void SetKey(string key)
-        {
-            Key = Regex.Replace(key, "\\s", "");
-
-            try
-            {
-                if (String.IsNullOrEmpty(Key))
-                {
-                    IsValid = false;
-                    Message = "Password is blank";
-                    return;
-                }
-
-                lblCode.Text = Generator.GenerateTimeoutCode(Key);
-                lblCode.Visible = true;
-                IsValid = true;
-                tmrMain.Enabled = true;
-                txtKey.ForeColor = Color.Black;
-            }
-            catch (Exception ex)
-            {
-                lblCode.Visible = false;
-                tmrMain.Enabled = false;
-                IsValid = false;
-                Message = ex.Message;
-                txtKey.ForeColor = Color.Red;
-            }
-            finally
-            {
-                RenderQRCode();
-            }
-        }
-
         public void RenderQRCode()
         {
-            if (IsValid)
+            if (IsKeyValid)
             {
                 var writer = new ZXing.BarcodeWriter
                 {
@@ -247,6 +228,10 @@ namespace Authentiqr.NET
                 var otpauth = String.Format("otpauth://totp/{0}?secret={1}", AccountName, Key);
                 var newBitmap = writer.Write(otpauth);
                 pbQRCode.Image = ResizeImage(newBitmap, new Size(300, 300));
+            }
+            else
+            {
+                pbQRCode.Image = null;
             }
         }
 
@@ -270,7 +255,7 @@ namespace Authentiqr.NET
                     var secret = queryString["secret"];
                     var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
                     txtAccountName.Text = HttpUtility.UrlDecode(account);
-                    SetKey(secret);
+                    Key = secret;
                 }
                 else
                 {
