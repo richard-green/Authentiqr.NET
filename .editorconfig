@@ -1,0 +1,36 @@
+# http://EditorConfig.org
+
+root = true
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.fs]
+indent_style = space
+indent_size = 4
+
+[*.vb]
+indent_style = space
+indent_size = 4
+
+[*.xml]
+indent_style = space
+indent_size = 2
+
+[*.xslt]
+indent_style = space
+indent_size = 2
+
+[*.config]
+indent_style = space
+indent_size = 2
+
+[*.sql]
+indent_style = space
+indent_size = 4

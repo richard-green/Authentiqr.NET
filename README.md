@@ -8,6 +8,7 @@ A simple system-tray application allowing you easy access to the 2-step authenti
 * Facebook
 * Dropbox
 * UPlay
+* ProtonMail
 
 ... and any others that use the same standard OTP algorithm.
 

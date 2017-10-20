@@ -313,6 +313,10 @@ namespace Authentiqr.NET
             {
                 return imageList.Images[5];
             }
+            else if (accountNameLower.StartsWith("protonmail"))
+            {
+                return imageList.Images[6];
+            }
 
             return null;
         }
