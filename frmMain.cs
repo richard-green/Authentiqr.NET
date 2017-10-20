@@ -87,7 +87,7 @@ namespace Authentiqr.NET
 
             if (settings.EncryptionMode == EncryptionMode.Basic)
             {
-                mnuLockUnlock.Text = "Lock Data";
+                mnuUnlockOrSetPassword.Text = "Set Password";
                 settings.Unlock();
                 AddAccounts();
             }
@@ -128,7 +128,7 @@ namespace Authentiqr.NET
                     settings.Lock();
                     TimeoutMenuItems.Clear();
                     tmrMain.Enabled = false;
-                    mnuLockUnlock.Visible = true;
+                    mnuUnlockOrSetPassword.Text = "Unlock";
                     mnuAddAccount.Enabled = false;
                     break;
             }
@@ -224,7 +224,7 @@ namespace Authentiqr.NET
             Application.Exit();
         }
 
-        private void mnuLockUnlock_Click(object sender, EventArgs e)
+        private void mnuUnlockOrSetPassword_Click(object sender, EventArgs e)
         {
             if (settings.Locked)
             {
@@ -239,18 +239,18 @@ namespace Authentiqr.NET
                     if (settings.EncryptionMode == EncryptionMode.Password ||
                         settings.EncryptionMode == EncryptionMode.PatternAndPassword)
                     {
-                        settings.SetPassword(GetPassword("Enter password"));
+                        settings.SetPassword(GetPassword("Enter Password"));
                     }
 
                     // Perform unlock
                     settings.Unlock();
                     AddAccounts();
-                    mnuLockUnlock.Text = "Set Password";
+                    mnuUnlockOrSetPassword.Text = "Set Password";
                     mnuAddAccount.Enabled = true;
                 }
                 catch (CryptographicException)
                 {
-                    MessageBox.Show("Invalid Pattern");
+                    MessageBox.Show("Unable to decrypt", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
@@ -267,14 +267,14 @@ namespace Authentiqr.NET
                 {
                     do
                     {
-                        var pwd1 = GetPassword("Enter password");
+                        var pwd1 = GetPassword("Enter Password");
 
                         if (pwd1.Length == 0)
                         {
                             break;
                         }
 
-                        var pwd2 = GetPassword("Confirm password");
+                        var pwd2 = GetPassword("Confirm Password");
 
                         if (pwd1.Use(pwd1s => pwd2.Use(pwd2s => pwd1s == pwd2s)))
                         {

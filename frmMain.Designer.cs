@@ -34,7 +34,7 @@
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddAccount = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuLockUnlock = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuUnlockOrSetPassword = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.tmrMain = new System.Windows.Forms.Timer(this.components);
             this.imageList = new System.Windows.Forms.ImageList(this.components);
@@ -53,7 +53,7 @@
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuAddAccount,
             this.toolStripMenuItem2,
-            this.mnuLockUnlock,
+            this.mnuUnlockOrSetPassword,
             this.mnuExit});
             this.contextMenu.Name = "contextMenuStrip1";
             this.contextMenu.Size = new System.Drawing.Size(145, 76);
@@ -72,10 +72,10 @@
             // 
             // mnuLockUnlock
             // 
-            this.mnuLockUnlock.Name = "mnuLockUnlock";
-            this.mnuLockUnlock.Size = new System.Drawing.Size(144, 22);
-            this.mnuLockUnlock.Text = "Unlock";
-            this.mnuLockUnlock.Click += new System.EventHandler(this.mnuLockUnlock_Click);
+            this.mnuUnlockOrSetPassword.Name = "mnuLockUnlock";
+            this.mnuUnlockOrSetPassword.Size = new System.Drawing.Size(144, 22);
+            this.mnuUnlockOrSetPassword.Text = "Unlock";
+            this.mnuUnlockOrSetPassword.Click += new System.EventHandler(this.mnuUnlockOrSetPassword_Click);
             // 
             // mnuExit
             // 
@@ -126,7 +126,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuExit;
 		private System.Windows.Forms.Timer tmrMain;
 		private System.Windows.Forms.ToolStripMenuItem mnuAddAccount;
-        private System.Windows.Forms.ToolStripMenuItem mnuLockUnlock;
+        private System.Windows.Forms.ToolStripMenuItem mnuUnlockOrSetPassword;
         private System.Windows.Forms.ImageList imageList;
     }
 }
