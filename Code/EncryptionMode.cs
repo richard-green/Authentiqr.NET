@@ -4,6 +4,7 @@
     {
         Basic = 0,
         Pattern = 1,
-        Password = 2
+        Password = 2,
+        PatternAndPassword = 3
     }
 }

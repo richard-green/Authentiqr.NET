@@ -16,6 +16,7 @@ namespace Authentiqr.NET.Code
         public bool StartupPrompt { get; set; } = true;
         public int EncryptionVersion { get; private set; } = 1;
         public EncryptionMode EncryptionMode { get; private set; } = EncryptionMode.Basic;
+        public bool Locked { get; private set; }
 
         private string encryptedData;
         private SecureString pattern;
@@ -50,6 +51,8 @@ namespace Authentiqr.NET.Code
                     Migrate(0);
                     break;
             }
+
+            Locked = !String.IsNullOrEmpty(encryptedData);
         }
 
         public void SaveSettings()
@@ -74,6 +77,7 @@ namespace Authentiqr.NET.Code
         public void Unlock()
         {
             Accounts = AccountData.Parse(Decrypt(encryptedData));
+            Locked = false;
         }
 
         public void Lock()
@@ -86,18 +90,22 @@ namespace Authentiqr.NET.Code
                 password = null;
             }
 
-            pattern = null;
+            if (pattern != null)
+            {
+                pattern.Dispose();
+                pattern = null;
+            }
+
+            Locked = true;
         }
 
         public void SetPattern(SecureString pattern)
         {
-            this.EncryptionMode = EncryptionMode.Pattern;
             this.pattern = pattern;
         }
 
         public void SetPassword(SecureString password)
         {
-            this.EncryptionMode = EncryptionMode.Password;
             this.password = password;
         }
 
@@ -109,6 +117,18 @@ namespace Authentiqr.NET.Code
             {
                 var bytes = Encoding.UTF8.GetBytes(data);
 
+                EncryptionMode = EncryptionMode.Basic;
+
+                if (pattern != null && pattern.Length > 0)
+                {
+                    EncryptionMode = EncryptionMode.Pattern;
+                }
+
+                if (password != null && password.Length > 0)
+                {
+                    EncryptionMode = EncryptionMode == EncryptionMode.Pattern ? EncryptionMode.PatternAndPassword : EncryptionMode.Password;
+                }
+
                 switch (EncryptionMode)
                 {
                     case EncryptionMode.Basic:
@@ -117,6 +137,8 @@ namespace Authentiqr.NET.Code
                         return Base64.Encode(SymmetricEncryption.Encrypt(bytes, pattern.Concat(userId)));
                     case EncryptionMode.Password:
                         return Base64.Encode(SymmetricEncryption.Encrypt(bytes, password));
+                    case EncryptionMode.PatternAndPassword:
+                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, password.Concat(pattern)));
                     default:
                         throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
                 }
@@ -150,6 +172,8 @@ namespace Authentiqr.NET.Code
                         return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, pattern.Concat(userId)));
                     case EncryptionMode.Password:
                         return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password));
+                    case EncryptionMode.PatternAndPassword:
+                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password.Concat(pattern)));
                     default:
                         throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
                 }

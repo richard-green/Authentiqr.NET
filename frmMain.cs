@@ -1,15 +1,15 @@
-﻿using Microsoft.Win32;
+﻿using Authentiqr.NET.Code;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Authentiqr.NET.Code;
-using System.Security;
 
 namespace Authentiqr.NET
 {
@@ -138,7 +138,12 @@ namespace Authentiqr.NET
         {
             foreach (var item in TimeoutMenuItems)
             {
-                item.Text = Generator.GenerateTimeoutCode(settings.Accounts[item.Tag as string]);
+                var account = item.Tag as string;
+
+                if (settings.Accounts.ContainsKey(account))
+                {
+                    item.Text = Generator.GenerateTimeoutCode(settings.Accounts[account]);
+                }
             }
         }
 
@@ -165,7 +170,7 @@ namespace Authentiqr.NET
                 form.Key = settings.Accounts[oldAccountName].Use(p => p);
                 DialogResult result = form.ShowDialog(this);
 
-                if (result == DialogResult.OK && form.IsKeyValid)
+                if (result == DialogResult.OK)
                 {
                     settings.Accounts.Remove(oldAccountName);
 
@@ -180,6 +185,7 @@ namespace Authentiqr.NET
                     }
                     else
                     {
+                        TimeoutMenuItems.Remove(timeoutMenuItem);
                         var ix = contextMenu.Items.IndexOf(accountMenuItem);
                         contextMenu.Items.RemoveAt(ix + 2); // remove separator
                         contextMenu.Items.RemoveAt(ix + 1); // remove timeout password
@@ -220,39 +226,73 @@ namespace Authentiqr.NET
 
         private void mnuLockUnlock_Click(object sender, EventArgs e)
         {
-            using (frmPatternLock form = new frmPatternLock(settings))
+            if (settings.Locked)
             {
-                DialogResult result = form.ShowDialog(this);
-
-                if (result == DialogResult.OK)
+                try
                 {
-                    if (settings.EncryptionMode == EncryptionMode.Pattern)
+                    if (settings.EncryptionMode == EncryptionMode.Pattern ||
+                        settings.EncryptionMode == EncryptionMode.PatternAndPassword)
                     {
-                        try
-                        {
-                            // Perform unlock
-                            settings.SetPattern(form.GetPattern());
-                            settings.Unlock();
-                            AddAccounts();
-                            mnuLockUnlock.Visible = false;
-                            mnuAddAccount.Enabled = true;
-                        }
-                        catch (CryptographicException)
-                        {
-                            MessageBox.Show("Invalid Pattern");
-                        }
+                        settings.SetPattern(GetPattern());
                     }
-                    else
+
+                    if (settings.EncryptionMode == EncryptionMode.Password ||
+                        settings.EncryptionMode == EncryptionMode.PatternAndPassword)
                     {
-                        // Perform first lock
-                        mnuLockUnlock.Visible = false;
-                        settings.SetPattern(form.GetPattern());
-                        settings.SaveAccounts();
+                        settings.SetPassword(GetPassword("Enter password"));
                     }
+
+                    // Perform unlock
+                    settings.Unlock();
+                    AddAccounts();
+                    mnuLockUnlock.Text = "Set Password";
+                    mnuAddAccount.Enabled = true;
+                }
+                catch (CryptographicException)
+                {
+                    MessageBox.Show("Invalid Pattern");
+                }
+            }
+            else
+            {
+                settings.SetPattern(null);
+                settings.SetPassword(null);
+
+                if (MessageBox.Show("Use pattern lock?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    settings.SetPattern(GetPattern());
                 }
 
-                settings.SaveSettings();
+                if (MessageBox.Show("Use password?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    do
+                    {
+                        var pwd1 = GetPassword("Enter password");
+
+                        if (pwd1.Length == 0)
+                        {
+                            break;
+                        }
+
+                        var pwd2 = GetPassword("Confirm password");
+
+                        if (pwd1.Use(pwd1s => pwd2.Use(pwd2s => pwd1s == pwd2s)))
+                        {
+                            settings.SetPassword(pwd1);
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Passwords do not match", "Set Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    while (true);
+                }
+
+                settings.SaveAccounts();
             }
+
+            settings.SaveSettings();
         }
 
         #endregion User Events
@@ -319,6 +359,22 @@ namespace Authentiqr.NET
             }
 
             return null;
+        }
+
+        private SecureString GetPattern()
+        {
+            using (frmPatternLock form = new frmPatternLock(settings))
+            {
+                return form.ShowDialog(this) == DialogResult.OK ? form.GetPattern() : null;
+            }
+        }
+
+        private SecureString GetPassword(string prompt)
+        {
+            using (frmPassword form = new frmPassword(settings, prompt))
+            {
+                return form.ShowDialog(this) == DialogResult.OK ? form.GetPassword() : null;
+            }
         }
 
         #endregion Methods
