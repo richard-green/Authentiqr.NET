@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 
-namespace Authentiqr.NET.Code
+namespace Authentiqr.NET.Code.EncryptionV2
 {
     class SymmetricEncryption
     {

@@ -1,4 +1,5 @@
 ﻿using Authentiqr.NET.Code;
+using Authentiqr.NET.Code.EncryptionV3;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -247,10 +248,19 @@ namespace Authentiqr.NET
                     AddAccounts();
                     mnuUnlockOrSetPassword.Text = "Set Password";
                     mnuAddAccount.Enabled = true;
+
+                    if (settings.EncryptionUpgradeRequired)
+                    {
+                        settings.SaveAccounts();
+                    }
                 }
                 catch (CryptographicException)
                 {
                     MessageBox.Show("Unable to decrypt", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (ChecksumValidationException)
+                {
+                    MessageBox.Show("Unable to decrypt due to invalid checksum", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else

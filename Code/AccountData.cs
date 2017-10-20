@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Authentiqr.NET.Code.Encode;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Authentiqr.NET.Code
@@ -13,18 +13,11 @@ namespace Authentiqr.NET.Code
         {
             get
             {
-                // Apply a random salt to the data prior to encryption
-                var rng = new RNGCryptoServiceProvider();
-                var bytes = new byte[1];
-                rng.GetBytes(bytes);
-                bytes = new byte[32 + bytes[0]];
-                rng.GetBytes(bytes);
-
-                var data = String.Join("*", this.Select(account => account.Value.Use(password => String.Format("{0}@{1}",
-                                                        Base64.Encode(Encoding.UTF8.GetBytes(account.Key)),
-                                                        Base64.Encode(Encoding.UTF8.GetBytes(password))))));
-
-                return String.Format("{0}#{1}", Base64.Encode(bytes), data);
+                return String.Join("*", this.Select(account =>
+                    account.Value.Use(password =>
+                        String.Format("{0}@{1}",
+                                      Base64.Encode(Encoding.UTF8.GetBytes(account.Key)),
+                                      Base64.Encode(Encoding.UTF8.GetBytes(password))))));
             }
         }
 

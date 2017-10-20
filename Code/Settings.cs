@@ -1,4 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using Authentiqr.NET.Code.Encode;
+using Authentiqr.NET.Code.EncryptionV2;
+using Authentiqr.NET.Code.EncryptionV3;
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Security;
@@ -18,15 +21,32 @@ namespace Authentiqr.NET.Code
         public EncryptionMode EncryptionMode { get; private set; } = EncryptionMode.Basic;
         public bool Locked { get; private set; }
 
+        public bool EncryptionUpgradeRequired
+        {
+            get
+            {
+                return EncryptionVersion < 3 ||
+                       cryptoConfig.ChecksumSize != RecommendedChecksumSize ||
+                       cryptoConfig.Iterations != RecommendedIterations ||
+                       cryptoConfig.SaltSize != RecommendedSaltSize;
+            }
+        }
+
         private string encryptedData;
         private SecureString pattern;
         private SecureString password;
         private SecureString userId;
+        private CryptoConfig cryptoConfig;
+
+        private const int RecommendedChecksumSize = 20;
+        private const int RecommendedIterations = 10000;
+        private const int RecommendedSaltSize = 32;
 
         public void LoadSettings()
         {
             var settingsVersion = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SettingsVersion", 0)).GetValueOrDefault(-1);
             userId = new SecureString().AppendChars(System.Security.Principal.WindowsIdentity.GetCurrent().User.Value);
+            cryptoConfig = new CryptoConfig();
 
             switch (settingsVersion)
             {
@@ -37,6 +57,9 @@ namespace Authentiqr.NET.Code
                     PatternWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowLeft", PatternWindowLeft));
                     StartupPrompt = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "StartupPrompt", 1)) == 1;
                     EncryptionVersion = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", 1));
+                    cryptoConfig.ChecksumSize = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "ChecksumSize", RecommendedChecksumSize));
+                    cryptoConfig.Iterations = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "Iterations", RecommendedIterations));
+                    cryptoConfig.SaltSize = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SaltSize", RecommendedSaltSize));
                     EncryptionMode = (EncryptionMode)((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionMode", EncryptionMode.Basic));
                     encryptedData = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", null);
                     break;
@@ -67,11 +90,13 @@ namespace Authentiqr.NET.Code
 
         public void SaveAccounts()
         {
-            EncryptionVersion = 2;
             encryptedData = Encrypt(Accounts.Data);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionMode", EncryptionMode, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", EncryptionVersion, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", encryptedData, RegistryValueKind.String);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "ChecksumSize", cryptoConfig.ChecksumSize, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "Iterations", cryptoConfig.Iterations, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SaltSize", cryptoConfig.SaltSize, RegistryValueKind.DWord);
         }
 
         public void Unlock()
@@ -113,39 +138,36 @@ namespace Authentiqr.NET.Code
         {
             if (String.IsNullOrEmpty(data)) return String.Empty;
 
-            if (EncryptionVersion == 2)
+            EncryptionVersion = 3;
+            EncryptionMode = EncryptionMode.Basic;
+            cryptoConfig.ChecksumSize = RecommendedChecksumSize;
+            cryptoConfig.Iterations = RecommendedIterations;
+            cryptoConfig.SaltSize = RecommendedSaltSize;
+
+            if (pattern != null && pattern.Length > 0)
             {
-                var bytes = Encoding.UTF8.GetBytes(data);
-
-                EncryptionMode = EncryptionMode.Basic;
-
-                if (pattern != null && pattern.Length > 0)
-                {
-                    EncryptionMode = EncryptionMode.Pattern;
-                }
-
-                if (password != null && password.Length > 0)
-                {
-                    EncryptionMode = EncryptionMode == EncryptionMode.Pattern ? EncryptionMode.PatternAndPassword : EncryptionMode.Password;
-                }
-
-                switch (EncryptionMode)
-                {
-                    case EncryptionMode.Basic:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, userId));
-                    case EncryptionMode.Pattern:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, pattern.Concat(userId)));
-                    case EncryptionMode.Password:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, password));
-                    case EncryptionMode.PatternAndPassword:
-                        return Base64.Encode(SymmetricEncryption.Encrypt(bytes, password.Concat(pattern)));
-                    default:
-                        throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
-                }
+                EncryptionMode = EncryptionMode.Pattern;
             }
-            else
+
+            if (password != null && password.Length > 0)
             {
-                throw new NotImplementedException("Encryption version not supported: " + EncryptionMode);
+                EncryptionMode = EncryptionMode == EncryptionMode.Pattern ? EncryptionMode.PatternAndPassword : EncryptionMode.Password;
+            }
+
+            var aesEncryptor = new AesEncryptor(cryptoConfig);
+
+            switch (EncryptionMode)
+            {
+                case EncryptionMode.Basic:
+                    return Base64.Encode(aesEncryptor.Encrypt(data, userId));
+                case EncryptionMode.Pattern:
+                    return Base64.Encode(aesEncryptor.Encrypt(data, pattern.Concat(userId)));
+                case EncryptionMode.Password:
+                    return Base64.Encode(aesEncryptor.Encrypt(data, password));
+                case EncryptionMode.PatternAndPassword:
+                    return Base64.Encode(aesEncryptor.Encrypt(data, password.Concat(pattern)));
+                default:
+                    throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
             }
         }
 
@@ -155,10 +177,10 @@ namespace Authentiqr.NET.Code
 
             if (EncryptionVersion == 1)
             {
-                var key = EncryptionMode == EncryptionMode.Pattern ? EncryptionV1.GeneratePasswordHash(pattern, userId) : userId;
+                var key = EncryptionMode == EncryptionMode.Pattern ? EncryptionV1.EncryptionV1.GeneratePasswordHash(pattern, userId) : userId;
                 var iv = new SecureString().AppendChars("LCGoogleApps");
-                var algorithm = EncryptionV1.CreateCryptoAlgorithm(key, iv);
-                return EncryptionV1.Decrypt(Base64.Decode(encData), algorithm);
+                var algorithm = EncryptionV1.EncryptionV1.CreateCryptoAlgorithm(key, iv);
+                return EncryptionV1.EncryptionV1.Decrypt(Base64.Decode(encData), algorithm);
             }
             else if (EncryptionVersion == 2)
             {
@@ -174,6 +196,26 @@ namespace Authentiqr.NET.Code
                         return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password));
                     case EncryptionMode.PatternAndPassword:
                         return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password.Concat(pattern)));
+                    default:
+                        throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
+                }
+            }
+            else if (EncryptionVersion == 3)
+            {
+                var encBytes = Base64.Decode(encData);
+
+                var aesDecryptor = new AesDecryptor(cryptoConfig);
+
+                switch (EncryptionMode)
+                {
+                    case EncryptionMode.Basic:
+                        return aesDecryptor.Decrypt(encBytes, userId);
+                    case EncryptionMode.Pattern:
+                        return aesDecryptor.Decrypt(encBytes, pattern.Concat(userId));
+                    case EncryptionMode.Password:
+                        return aesDecryptor.Decrypt(encBytes, password);
+                    case EncryptionMode.PatternAndPassword:
+                        return aesDecryptor.Decrypt(encBytes, password.Concat(pattern));
                     default:
                         throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
                 }

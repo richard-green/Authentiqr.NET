@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Authentiqr.NET.Code.Encode;
+using System;
 using System.IO;
 using System.Security;
 using System.Security.Cryptography;
@@ -21,11 +22,6 @@ namespace Authentiqr.NET.Code
             PinModulo = (int)Math.Pow(10, PassCodeLength);
         }
 
-        public string ToHex(byte[] data)
-        {
-            return BitConverter.ToString(data).Replace("-", String.Empty).ToLower();
-        }
-
         public string GenerateTimeoutCode(SecureString password)
         {
             return password.Use(p => GenerateTimeoutCode(p));
@@ -34,14 +30,14 @@ namespace Authentiqr.NET.Code
         public string GenerateTimeoutCode(string password)
         {
             byte[] key = Base32.FromBase32String(password);
-            string keyStr = ToHex(key);
+            string keyStr = Hex.Encode(key);
             HMACSHA1 Mac = new HMACSHA1();
             Mac.Key = key;
 
             byte[] challenge = Reverse(BitConverter.GetBytes(CurrentInterval));
             byte[] hash = Mac.ComputeHash(challenge);
 
-            string hashStr = ToHex(hash);
+            string hashStr = Hex.Encode(hash);
 
             // Dynamically truncate the hash
             // OffsetBits are the low order bits of the last byte of the hash

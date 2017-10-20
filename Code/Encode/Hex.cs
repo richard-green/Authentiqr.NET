@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Authentiqr.NET.Code
+namespace Authentiqr.NET.Code.Encode
 {
     public class Hex
     {

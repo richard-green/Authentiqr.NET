@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Authentiqr.NET.Code.Encode;
+using System;
 using System.IO;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Authentiqr.NET.Code
+namespace Authentiqr.NET.Code.EncryptionV1
 {
     public class EncryptionV1
     {
