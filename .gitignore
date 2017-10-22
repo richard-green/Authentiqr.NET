@@ -5,3 +5,4 @@ obj/
 *.suo
 *.ncrunchsolution
 *.csproj.user
+.vs

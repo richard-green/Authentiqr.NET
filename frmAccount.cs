@@ -17,11 +17,19 @@ namespace Authentiqr.NET
         private Settings settings;
         private bool constructing = true;
         private PasscodeGenerator generator = new PasscodeGenerator();
+        private IIconFinder iconFinder;
 
         public string AccountName
         {
-            get { return txtAccountName.Text; }
-            set { txtAccountName.Text = value; }
+            get
+            {
+                return txtAccountName.Text;
+            }
+            set
+            {
+                txtAccountName.Text = value;
+                pbIcon.Image = iconFinder.FindImage(txtAccountName.Text);
+            }
         }
 
         public string Key
@@ -39,24 +47,26 @@ namespace Authentiqr.NET
                 {
                     if (String.IsNullOrEmpty(txtKey.Text))
                     {
+                        lblCode.Text = "------";
                         IsKeyValid = false;
                         Message = "Password is blank";
                         return;
                     }
 
                     lblCode.Text = generator.GenerateTimeoutCode(txtKey.Text);
-                    lblCode.Visible = true;
                     IsKeyValid = true;
                     tmrMain.Enabled = true;
                     txtKey.ForeColor = Color.Black;
+                    btnOK.Enabled = true;
                 }
                 catch (Exception ex)
                 {
-                    lblCode.Visible = false;
+                    lblCode.Text = "------";
                     tmrMain.Enabled = false;
                     IsKeyValid = false;
                     Message = ex.Message;
                     txtKey.ForeColor = Color.Red;
+                    btnOK.Enabled = false;
                 }
                 finally
                 {
@@ -73,14 +83,15 @@ namespace Authentiqr.NET
 
         #region Constructor
 
-        public frmAccount(Settings settings)
+        public frmAccount(Settings settings, IIconFinder iconFinder)
         {
             InitializeComponent();
             this.settings = settings;
+            this.iconFinder = iconFinder;
             this.StartPosition = FormStartPosition.Manual;
             this.Top = settings.AccountWindowTop;
             this.Left = settings.AccountWindowLeft;
-            lblCode.Text = "";
+            lblCode.Text = "------";
             constructing = false;
         }
 
@@ -101,7 +112,7 @@ namespace Authentiqr.NET
             }
             else
             {
-                lblCode.Text = "";
+                lblCode.Text = "------";
             }
         }
 
@@ -142,6 +153,7 @@ namespace Authentiqr.NET
         private void txtAccountName_KeyUp(object sender, KeyEventArgs e)
         {
             RenderQRCode();
+            ChooseIcon();
         }
 
         private void txtKey_KeyUp(object sender, KeyEventArgs e)
@@ -286,6 +298,11 @@ namespace Authentiqr.NET
             {
                 return imgToResize;
             }
+        }
+
+        private void ChooseIcon()
+        {
+            pbIcon.Image = iconFinder.FindImage(txtAccountName.Text);
         }
 
         #endregion Methods

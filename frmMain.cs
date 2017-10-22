@@ -14,7 +14,7 @@ using System.Windows.Forms;
 
 namespace Authentiqr.NET
 {
-    public partial class frmMain : Form
+    public partial class frmMain : Form, IIconFinder
     {
         #region Properties
 
@@ -115,7 +115,7 @@ namespace Authentiqr.NET
             string oldAccountName = accountMenuItem.Text;
             ToolStripItem timeoutMenuItem = accountMenuItem.Tag as ToolStripItem;
 
-            using (frmAccount form = new frmAccount(settings))
+            using (frmAccount form = new frmAccount(settings, this))
             {
                 form.ShowRemove(true);
                 form.AccountName = oldAccountName;
@@ -152,7 +152,7 @@ namespace Authentiqr.NET
 
         private void mnuAddAccount_Click(object sender, EventArgs e)
         {
-            using (frmAccount form = new frmAccount(settings))
+            using (frmAccount form = new frmAccount(settings, this))
             {
                 DialogResult result = form.ShowDialog(this);
 
@@ -218,7 +218,7 @@ namespace Authentiqr.NET
             tmrMain.Enabled = true;
         }
 
-        private Image FindImage(string accountName)
+        public Image FindImage(string accountName)
         {
             var accountNameLower = accountName.ToLower();
 
@@ -289,6 +289,9 @@ namespace Authentiqr.NET
 
         private void SetPassword()
         {
+            bool patternSet = false;
+            bool passwordSet = false;
+
             settings.SetPattern(null);
             settings.SetPassword(null);
 
@@ -297,6 +300,7 @@ namespace Authentiqr.NET
                 var pattern = GetPattern();
                 if (pattern == null) return;
                 settings.SetPattern(pattern);
+                patternSet = true;
             }
 
             if (MessageBox.Show("Use password?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -304,9 +308,17 @@ namespace Authentiqr.NET
                 var password = CreatePassword();
                 if (password == null) return;
                 settings.SetPassword(password);
+                passwordSet = true;
+            }
+
+            if (!patternSet && !passwordSet && MessageBox.Show("Are you sure you want to use basic encryption only?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            {
+                return;
             }
 
             settings.SaveAccounts();
+
+            MessageBox.Show($"Password set to the following mode:\r\n\r\n- {settings.EncryptionMode.GetDescription()}", "Password Set", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private SecureString GetPattern()

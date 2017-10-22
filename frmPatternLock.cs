@@ -71,6 +71,12 @@ namespace Authentiqr.NET
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             mouseDown = false;
+
+            if (pattern.Count < 4)
+            {
+                pattern.Clear();
+                pictureBox1.Refresh();
+            }
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)

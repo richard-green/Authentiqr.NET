@@ -40,15 +40,20 @@
             this.btnRemove = new System.Windows.Forms.Button();
             this.pbQRCode = new System.Windows.Forms.PictureBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pbIcon = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbQRCode)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(13, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(81, 13);
+            this.label1.Size = new System.Drawing.Size(84, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Account Name:";
             // 
@@ -56,7 +61,7 @@
             // 
             this.txtAccountName.Location = new System.Drawing.Point(16, 33);
             this.txtAccountName.Name = "txtAccountName";
-            this.txtAccountName.Size = new System.Drawing.Size(300, 20);
+            this.txtAccountName.Size = new System.Drawing.Size(300, 22);
             this.txtAccountName.TabIndex = 1;
             this.txtAccountName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtAccountName_KeyUp);
             // 
@@ -64,7 +69,7 @@
             // 
             this.txtKey.Location = new System.Drawing.Point(16, 81);
             this.txtKey.Name = "txtKey";
-            this.txtKey.Size = new System.Drawing.Size(300, 20);
+            this.txtKey.Size = new System.Drawing.Size(300, 22);
             this.txtKey.TabIndex = 3;
             this.txtKey.UseSystemPasswordChar = true;
             this.txtKey.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtKey_KeyUp);
@@ -72,40 +77,42 @@
             // label2
             // 
             this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.White;
             this.label2.Location = new System.Drawing.Point(13, 65);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(28, 13);
+            this.label2.Size = new System.Drawing.Size(27, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "Key:";
             // 
             // lblCode
             // 
             this.lblCode.AutoSize = true;
-            this.lblCode.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCode.Location = new System.Drawing.Point(10, 105);
+            this.lblCode.BackColor = System.Drawing.Color.White;
+            this.lblCode.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCode.Location = new System.Drawing.Point(12, 110);
             this.lblCode.Name = "lblCode";
-            this.lblCode.Size = new System.Drawing.Size(107, 37);
+            this.lblCode.Size = new System.Drawing.Size(105, 32);
             this.lblCode.TabIndex = 2;
             this.lblCode.Text = "123456";
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(156, 464);
+            this.btnOK.Location = new System.Drawing.Point(159, 480);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 4;
-            this.btnOK.Text = "OK";
+            this.btnOK.Text = "&OK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(242, 464);
+            this.btnCancel.Location = new System.Drawing.Point(242, 480);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "&Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
@@ -116,11 +123,11 @@
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(15, 464);
+            this.btnRemove.Location = new System.Drawing.Point(15, 480);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 4;
-            this.btnRemove.Text = "Remove";
+            this.btnRemove.Text = "&Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
             this.btnRemove.Visible = false;
             this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
@@ -141,6 +148,24 @@
             this.saveFileDialog.DefaultExt = "png";
             this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.White;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(332, 468);
+            this.pictureBox1.TabIndex = 7;
+            this.pictureBox1.TabStop = false;
+            // 
+            // pbIcon
+            // 
+            this.pbIcon.BackColor = System.Drawing.Color.White;
+            this.pbIcon.Location = new System.Drawing.Point(298, 119);
+            this.pbIcon.Name = "pbIcon";
+            this.pbIcon.Size = new System.Drawing.Size(16, 16);
+            this.pbIcon.TabIndex = 8;
+            this.pbIcon.TabStop = false;
+            // 
             // frmAccount
             // 
             this.AcceptButton = this.btnOK;
@@ -148,7 +173,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(332, 502);
+            this.ClientSize = new System.Drawing.Size(332, 516);
+            this.Controls.Add(this.pbIcon);
             this.Controls.Add(this.pbQRCode);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnRemove);
@@ -158,6 +184,8 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtAccountName);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.pictureBox1);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.MaximizeBox = false;
@@ -170,6 +198,8 @@
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmAddAccount_DragEnter);
             this.Move += new System.EventHandler(this.frmAddAccount_Move);
             ((System.ComponentModel.ISupportInitialize)(this.pbQRCode)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbIcon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -188,5 +218,7 @@
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.PictureBox pbQRCode;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pbIcon;
     }
 }
