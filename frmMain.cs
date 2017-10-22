@@ -58,7 +58,7 @@ namespace Authentiqr.NET
         {
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.Manual;
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.AutoScaleBaseSize = new Size(5, 13);
             this.FormBorderStyle = FormBorderStyle.None;
             this.Enabled = false;
             this.AccessibleRole = AccessibleRole.None;
@@ -66,7 +66,7 @@ namespace Authentiqr.NET
             this.SizeGripStyle = SizeGripStyle.Hide;
             this.ControlBox = false;
             this.MinimizeBox = false;
-            this.ClientSize = new System.Drawing.Size(1, 7);
+            this.ClientSize = new Size(1, 7);
             this.Opacity = 0.0d;
 
             InitializeComponent();
@@ -79,7 +79,7 @@ namespace Authentiqr.NET
         private void frmMain_Load(object sender, EventArgs e)
         {
             settings = new Settings();
-            settings.LoadSettings();
+            settings.Load();
 
             if (settings.StartupPrompt)
             {

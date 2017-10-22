@@ -80,6 +80,7 @@ namespace Authentiqr.NET
             this.StartPosition = FormStartPosition.Manual;
             this.Top = settings.AccountWindowTop;
             this.Left = settings.AccountWindowLeft;
+            lblCode.Text = "";
             constructing = false;
         }
 
@@ -203,6 +204,7 @@ namespace Authentiqr.NET
             {
                 settings.AccountWindowTop = this.Top;
                 settings.AccountWindowLeft = this.Left;
+                settings.SaveSettings();
             }
         }
 

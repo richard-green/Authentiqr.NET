@@ -43,6 +43,7 @@
             // 
             // notifyIcon
             // 
+            this.notifyIcon.BalloonTipText = "Authentiqr.NET";
             this.notifyIcon.ContextMenuStrip = this.contextMenu;
             this.notifyIcon.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.notifyIcon.Text = "Authentiqr.NET";
@@ -70,9 +71,9 @@
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(141, 6);
             // 
-            // mnuLockUnlock
+            // mnuUnlockOrSetPassword
             // 
-            this.mnuUnlockOrSetPassword.Name = "mnuLockUnlock";
+            this.mnuUnlockOrSetPassword.Name = "mnuUnlockOrSetPassword";
             this.mnuUnlockOrSetPassword.Size = new System.Drawing.Size(144, 22);
             this.mnuUnlockOrSetPassword.Text = "Unlock";
             this.mnuUnlockOrSetPassword.Click += new System.EventHandler(this.mnuUnlockOrSetPassword_Click);

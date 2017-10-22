@@ -57,6 +57,7 @@ namespace Authentiqr.NET.Code
         /// <returns></returns>
         public static SecureString Concat(this SecureString secureString, SecureString other)
         {
+            if (secureString == null) return other;
             var result = secureString.Copy();
             other.Use((s) => result.AppendChars(s));
             return result;

@@ -7,6 +7,7 @@ namespace Authentiqr.NET
 {
     public partial class frmPassword : Form
     {
+        private bool constructing = true;
         private Settings settings;
 
         public frmPassword(Settings settings, string prompt)
@@ -14,14 +15,27 @@ namespace Authentiqr.NET
             InitializeComponent();
             this.settings = settings;
             this.Text = prompt;
-            this.StartPosition = FormStartPosition.CenterScreen;
+            this.StartPosition = FormStartPosition.Manual;
+            this.Top = settings.PasswordWindowTop;
+            this.Left = settings.PasswordWindowLeft;
+            this.constructing = false;
         }
 
         public SecureString GetPassword()
         {
             var result = new SecureString();
-            result.AppendChars(textBox1.Text);
+            result.AppendChars(txtPassword.Text);
             return result;
+        }
+
+        private void frmPassword_Move(object sender, EventArgs e)
+        {
+            if (constructing == false)
+            {
+                settings.PasswordWindowTop = this.Top;
+                settings.PasswordWindowLeft = this.Left;
+                settings.SaveSettings();
+            }
         }
     }
 }

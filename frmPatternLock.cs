@@ -95,6 +95,7 @@ namespace Authentiqr.NET
             {
                 settings.PatternWindowTop = this.Top;
                 settings.PatternWindowLeft = this.Left;
+                settings.SaveSettings();
             }
         }
     }

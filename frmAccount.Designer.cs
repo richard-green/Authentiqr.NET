@@ -54,7 +54,7 @@
             // 
             // txtAccountName
             // 
-            this.txtAccountName.Location = new System.Drawing.Point(100, 14);
+            this.txtAccountName.Location = new System.Drawing.Point(16, 33);
             this.txtAccountName.Name = "txtAccountName";
             this.txtAccountName.Size = new System.Drawing.Size(300, 20);
             this.txtAccountName.TabIndex = 1;
@@ -62,7 +62,7 @@
             // 
             // txtKey
             // 
-            this.txtKey.Location = new System.Drawing.Point(100, 40);
+            this.txtKey.Location = new System.Drawing.Point(16, 81);
             this.txtKey.Name = "txtKey";
             this.txtKey.Size = new System.Drawing.Size(300, 20);
             this.txtKey.TabIndex = 3;
@@ -72,7 +72,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 43);
+            this.label2.Location = new System.Drawing.Point(13, 65);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(28, 13);
             this.label2.TabIndex = 2;
@@ -82,14 +82,15 @@
             // 
             this.lblCode.AutoSize = true;
             this.lblCode.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCode.Location = new System.Drawing.Point(94, 61);
+            this.lblCode.Location = new System.Drawing.Point(10, 105);
             this.lblCode.Name = "lblCode";
-            this.lblCode.Size = new System.Drawing.Size(0, 37);
+            this.lblCode.Size = new System.Drawing.Size(107, 37);
             this.lblCode.TabIndex = 2;
+            this.lblCode.Text = "123456";
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(325, 414);
+            this.btnOK.Location = new System.Drawing.Point(156, 464);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 4;
@@ -100,7 +101,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(244, 414);
+            this.btnCancel.Location = new System.Drawing.Point(242, 464);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
@@ -115,7 +116,7 @@
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(163, 414);
+            this.btnRemove.Location = new System.Drawing.Point(15, 464);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 4;
@@ -128,7 +129,7 @@
             // 
             this.pbQRCode.BackColor = System.Drawing.Color.White;
             this.pbQRCode.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pbQRCode.Location = new System.Drawing.Point(100, 102);
+            this.pbQRCode.Location = new System.Drawing.Point(16, 152);
             this.pbQRCode.Name = "pbQRCode";
             this.pbQRCode.Size = new System.Drawing.Size(300, 300);
             this.pbQRCode.TabIndex = 6;
@@ -140,14 +141,14 @@
             this.saveFileDialog.DefaultExt = "png";
             this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
             // 
-            // frmAddAccount
+            // frmAccount
             // 
             this.AcceptButton = this.btnOK;
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(438, 452);
+            this.ClientSize = new System.Drawing.Size(332, 502);
             this.Controls.Add(this.pbQRCode);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnRemove);
@@ -157,11 +158,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtAccountName);
             this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmAddAccount";
+            this.Name = "frmAccount";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Enter Account Details";
             this.Load += new System.EventHandler(this.frmAddAccount_Load);

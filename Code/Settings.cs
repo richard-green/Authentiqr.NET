@@ -16,21 +16,12 @@ namespace Authentiqr.NET.Code
         public int AccountWindowLeft { get; set; } = 200;
         public int PatternWindowTop { get; set; } = 100;
         public int PatternWindowLeft { get; set; } = 100;
+        public int PasswordWindowTop { get; set; } = 100;
+        public int PasswordWindowLeft { get; set; } = 100;
         public bool StartupPrompt { get; set; } = true;
         public int EncryptionVersion { get; private set; } = 1;
         public EncryptionMode EncryptionMode { get; private set; } = EncryptionMode.Basic;
         public bool Locked { get; private set; }
-
-        public bool EncryptionUpgradeRequired
-        {
-            get
-            {
-                return EncryptionVersion < 3 ||
-                       cryptoConfig.ChecksumSize != RecommendedChecksumSize ||
-                       cryptoConfig.Iterations != RecommendedIterations ||
-                       cryptoConfig.SaltSize != RecommendedSaltSize;
-            }
-        }
 
         private string encryptedData;
         private SecureString pattern;
@@ -42,7 +33,7 @@ namespace Authentiqr.NET.Code
         private const int RecommendedIterations = 10000;
         private const int RecommendedSaltSize = 32;
 
-        public void LoadSettings()
+        public void Load()
         {
             var settingsVersion = ((int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "SettingsVersion", 0)).GetValueOrDefault(-1);
             userId = new SecureString().AppendChars(System.Security.Principal.WindowsIdentity.GetCurrent().User.Value);
@@ -55,6 +46,8 @@ namespace Authentiqr.NET.Code
                     AccountWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowLeft", AccountWindowLeft));
                     PatternWindowTop = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowTop", PatternWindowTop));
                     PatternWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowLeft", PatternWindowLeft));
+                    PasswordWindowTop = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PasswordWindowTop", PasswordWindowTop));
+                    PasswordWindowLeft = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PasswordWindowLeft", PasswordWindowLeft));
                     StartupPrompt = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "StartupPrompt", 1)) == 1;
                     EncryptionVersion = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", 1));
                     cryptoConfig.ChecksumSize = ((int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "ChecksumSize", RecommendedChecksumSize));
@@ -85,12 +78,15 @@ namespace Authentiqr.NET.Code
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountWindowLeft", AccountWindowLeft, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowTop", PatternWindowTop, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PatternWindowLeft", PatternWindowLeft, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PasswordWindowTop", PasswordWindowTop, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "PasswordWindowLeft", PasswordWindowLeft, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "StartupPrompt", StartupPrompt ? 1 : 0, RegistryValueKind.DWord);
         }
 
         public void SaveAccounts()
         {
             encryptedData = Encrypt(Accounts.Data);
+
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionMode", EncryptionMode, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "EncryptionVersion", EncryptionVersion, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", encryptedData, RegistryValueKind.String);
@@ -223,6 +219,17 @@ namespace Authentiqr.NET.Code
             else
             {
                 throw new NotImplementedException("Encryption version not supported: " + EncryptionMode);
+            }
+        }
+
+        public bool EncryptionUpgradeRequired
+        {
+            get
+            {
+                return EncryptionVersion < 3 ||
+                       cryptoConfig.ChecksumSize < RecommendedChecksumSize ||
+                       cryptoConfig.Iterations < RecommendedIterations ||
+                       cryptoConfig.SaltSize < RecommendedSaltSize;
             }
         }
 
