@@ -18,37 +18,9 @@ namespace Authentiqr.NET
     {
         #region Properties
 
-        private PasscodeGenerator generator;
-        protected PasscodeGenerator Generator
-        {
-            get
-            {
-                if (generator == null)
-                {
-                    generator = new PasscodeGenerator();
-                }
-
-                return generator;
-            }
-        }
-
-        private Configuration config;
-        protected Configuration Config
-        {
-            get
-            {
-                if (config == null)
-                {
-                    config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                }
-
-                return config;
-            }
-        }
-
         private Settings settings;
-
-        private List<ToolStripItem> TimeoutMenuItems = new List<ToolStripItem>();
+        private PasscodeGenerator generator = new PasscodeGenerator();
+        private List<ToolStripItem> timeoutMenuItems = new List<ToolStripItem>();
 
         #endregion Properties
 
@@ -100,19 +72,6 @@ namespace Authentiqr.NET
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         }
 
-        private void StartupPrompt()
-        {
-            var response = MessageBox.Show("Would you like to run Authentiqr.NET on startup?", "Authentiqr.NET", MessageBoxButtons.YesNo);
-
-            if (response == DialogResult.Yes)
-            {
-                settings.RunOnWindowsStartup();
-            }
-
-            settings.StartupPrompt = false;
-            settings.SaveSettings();
-        }
-
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             switch (e.Reason)
@@ -122,28 +81,20 @@ namespace Authentiqr.NET
                 case SessionSwitchReason.RemoteDisconnect:
                 case SessionSwitchReason.ConsoleDisconnect:
                     // Lock the 2FA data when the machine is locked
-                    for (int i = 0; i < settings.Accounts.Count * 3; i++)
-                    {
-                        contextMenu.Items.RemoveAt(0);
-                    }
-                    settings.Lock();
-                    TimeoutMenuItems.Clear();
-                    tmrMain.Enabled = false;
-                    mnuUnlockOrSetPassword.Text = "Unlock";
-                    mnuAddAccount.Enabled = false;
+                    Lock();
                     break;
             }
         }
 
         private void tmrMain_Tick(object sender, EventArgs e)
         {
-            foreach (var item in TimeoutMenuItems)
+            foreach (var item in timeoutMenuItems)
             {
                 var account = item.Tag as string;
 
                 if (settings.Accounts.ContainsKey(account))
                 {
-                    item.Text = Generator.GenerateTimeoutCode(settings.Accounts[account]);
+                    item.Text = generator.GenerateTimeoutCode(settings.Accounts[account]);
                 }
             }
         }
@@ -186,7 +137,7 @@ namespace Authentiqr.NET
                     }
                     else
                     {
-                        TimeoutMenuItems.Remove(timeoutMenuItem);
+                        timeoutMenuItems.Remove(timeoutMenuItem);
                         var ix = contextMenu.Items.IndexOf(accountMenuItem);
                         contextMenu.Items.RemoveAt(ix + 2); // remove separator
                         contextMenu.Items.RemoveAt(ix + 1); // remove timeout password
@@ -229,80 +180,12 @@ namespace Authentiqr.NET
         {
             if (settings.Locked)
             {
-                try
-                {
-                    if (settings.EncryptionMode == EncryptionMode.Pattern ||
-                        settings.EncryptionMode == EncryptionMode.PatternAndPassword)
-                    {
-                        settings.SetPattern(GetPattern());
-                    }
-
-                    if (settings.EncryptionMode == EncryptionMode.Password ||
-                        settings.EncryptionMode == EncryptionMode.PatternAndPassword)
-                    {
-                        settings.SetPassword(GetPassword("Enter Password"));
-                    }
-
-                    // Perform unlock
-                    settings.Unlock();
-                    AddAccounts();
-                    mnuUnlockOrSetPassword.Text = "Set Password";
-                    mnuAddAccount.Enabled = true;
-
-                    if (settings.EncryptionUpgradeRequired)
-                    {
-                        settings.SaveAccounts();
-                    }
-                }
-                catch (CryptographicException)
-                {
-                    MessageBox.Show("Unable to decrypt", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                catch (ChecksumValidationException)
-                {
-                    MessageBox.Show("Unable to decrypt due to invalid checksum", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                Unlock();
             }
             else
             {
-                settings.SetPattern(null);
-                settings.SetPassword(null);
-
-                if (MessageBox.Show("Use pattern lock?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    settings.SetPattern(GetPattern());
-                }
-
-                if (MessageBox.Show("Use password?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    do
-                    {
-                        var pwd1 = GetPassword("Enter Password");
-
-                        if (pwd1.Length == 0)
-                        {
-                            break;
-                        }
-
-                        var pwd2 = GetPassword("Confirm Password");
-
-                        if (pwd1.Use(pwd1s => pwd2.Use(pwd2s => pwd1s == pwd2s)))
-                        {
-                            settings.SetPassword(pwd1);
-                            break;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Passwords do not match", "Set Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                    while (true);
-                }
-
-                settings.SaveAccounts();
+                SetPassword();
             }
-
-            settings.SaveSettings();
         }
 
         #endregion User Events
@@ -320,10 +203,10 @@ namespace Authentiqr.NET
         private void AddAccount(string accountName, SecureString key)
         {
             ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, FindImage(accountName), mnuAccount_Click);
-            ToolStripItem timeoutMenuItem = new ToolStripMenuItem(Generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
+            ToolStripItem timeoutMenuItem = new ToolStripMenuItem(generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
             ToolStripItem separator = new ToolStripSeparator();
 
-            TimeoutMenuItems.Add(timeoutMenuItem);
+            timeoutMenuItems.Add(timeoutMenuItem);
 
             accountMenuItem.Tag = timeoutMenuItem;
             timeoutMenuItem.Tag = accountName;
@@ -339,36 +222,91 @@ namespace Authentiqr.NET
         {
             var accountNameLower = accountName.ToLower();
 
-            if (accountNameLower.StartsWith("facebook"))
+            foreach (var key in imageList.Images.Keys)
             {
-                return imageList.Images[0];
-            }
-            else if (accountNameLower.StartsWith("google"))
-            {
-                return imageList.Images[1];
-            }
-            else if (accountNameLower.StartsWith("microsoft"))
-            {
-                return imageList.Images[2];
-            }
-            else if (accountNameLower.StartsWith("github"))
-            {
-                return imageList.Images[3];
-            }
-            else if (accountNameLower.StartsWith("dropbox"))
-            {
-                return imageList.Images[4];
-            }
-            else if (accountNameLower.StartsWith("uplay"))
-            {
-                return imageList.Images[5];
-            }
-            else if (accountNameLower.StartsWith("protonmail"))
-            {
-                return imageList.Images[6];
+                if (accountNameLower.StartsWith(key))
+                {
+                    return imageList.Images[key];
+                }
             }
 
             return null;
+        }
+
+        private void Lock()
+        {
+            for (int i = 0; i < settings.Accounts.Count * 3; i++)
+            {
+                contextMenu.Items.RemoveAt(0);
+            }
+            settings.Lock();
+            timeoutMenuItems.Clear();
+            tmrMain.Enabled = false;
+            mnuUnlockOrSetPassword.Text = "Unlock";
+            mnuAddAccount.Enabled = false;
+        }
+
+        private void Unlock()
+        {
+            try
+            {
+                if (settings.EncryptionMode == EncryptionMode.Pattern ||
+                    settings.EncryptionMode == EncryptionMode.PatternAndPassword)
+                {
+                    var pattern = GetPattern();
+                    if (pattern == null) return;
+                    settings.SetPattern(pattern);
+                }
+
+                if (settings.EncryptionMode == EncryptionMode.Password ||
+                    settings.EncryptionMode == EncryptionMode.PatternAndPassword)
+                {
+                    var password = GetPassword();
+                    if (password == null) return;
+                    settings.SetPassword(password);
+                }
+
+                // Perform unlock
+                settings.Unlock();
+                AddAccounts();
+                mnuUnlockOrSetPassword.Text = "Set Password";
+                mnuAddAccount.Enabled = true;
+
+                if (settings.EncryptionUpgradeRequired)
+                {
+                    settings.SaveAccounts();
+                }
+            }
+            catch (CryptographicException)
+            {
+                MessageBox.Show("Unable to decrypt", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (ChecksumValidationException)
+            {
+                MessageBox.Show("Unable to decrypt due to invalid checksum", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SetPassword()
+        {
+            settings.SetPattern(null);
+            settings.SetPassword(null);
+
+            if (MessageBox.Show("Use pattern lock?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                var pattern = GetPattern();
+                if (pattern == null) return;
+                settings.SetPattern(pattern);
+            }
+
+            if (MessageBox.Show("Use password?", "Set Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                var password = CreatePassword();
+                if (password == null) return;
+                settings.SetPassword(password);
+            }
+
+            settings.SaveAccounts();
         }
 
         private SecureString GetPattern()
@@ -379,12 +317,54 @@ namespace Authentiqr.NET
             }
         }
 
-        private SecureString GetPassword(string prompt)
+        private SecureString GetPassword(string prompt = "Enter Password")
         {
             using (frmPassword form = new frmPassword(settings, prompt))
             {
                 return form.ShowDialog(this) == DialogResult.OK ? form.GetPassword() : null;
             }
+        }
+
+        private SecureString CreatePassword()
+        {
+            do
+            {
+                var password = GetPassword();
+
+                if (password == null)
+                {
+                    return null;
+                }
+
+                var confirm = GetPassword("Confirm Password");
+
+                if (confirm == null)
+                {
+                    return null;
+                }
+                else if (password.Use(pwd => confirm.Use(cnf => pwd == cnf)))
+                {
+                    return password;
+                }
+                else
+                {
+                    MessageBox.Show("Passwords do not match", "Set Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            while (true);
+        }
+
+        private void StartupPrompt()
+        {
+            var response = MessageBox.Show("Would you like to run Authentiqr.NET on startup?", "Authentiqr.NET", MessageBoxButtons.YesNo);
+
+            if (response == DialogResult.Yes)
+            {
+                settings.RunOnWindowsStartup();
+            }
+
+            settings.StartupPrompt = false;
+            settings.SaveSettings();
         }
 
         #endregion Methods

@@ -95,13 +95,13 @@
             // 
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "facebook.png");
-            this.imageList.Images.SetKeyName(1, "google-0.png");
-            this.imageList.Images.SetKeyName(2, "Microsoft-16.png");
-            this.imageList.Images.SetKeyName(3, "github-0.png");
-            this.imageList.Images.SetKeyName(4, "Dropbox-16.png");
-            this.imageList.Images.SetKeyName(5, "uplay.png");
-            this.imageList.Images.SetKeyName(6, "protonmail.png");
+            this.imageList.Images.SetKeyName(0, "facebook");
+            this.imageList.Images.SetKeyName(1, "google");
+            this.imageList.Images.SetKeyName(2, "microsoft");
+            this.imageList.Images.SetKeyName(3, "github");
+            this.imageList.Images.SetKeyName(4, "dropbox");
+            this.imageList.Images.SetKeyName(5, "uplay");
+            this.imageList.Images.SetKeyName(6, "protonmail");
             // 
             // frmMain
             // 
