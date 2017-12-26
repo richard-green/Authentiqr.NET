@@ -102,6 +102,7 @@
             this.imageList.Images.SetKeyName(4, "dropbox");
             this.imageList.Images.SetKeyName(5, "uplay");
             this.imageList.Images.SetKeyName(6, "protonmail");
+            this.imageList.Images.SetKeyName(7, "coinbase");
             // 
             // frmMain
             // 
