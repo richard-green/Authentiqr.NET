@@ -29,6 +29,7 @@
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAccount));
             this.label1 = new System.Windows.Forms.Label();
             this.txtAccountName = new System.Windows.Forms.TextBox();
             this.txtKey = new System.Windows.Forms.TextBox();
@@ -136,9 +137,11 @@
             // 
             this.pbQRCode.BackColor = System.Drawing.Color.White;
             this.pbQRCode.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pbQRCode.Image = ((System.Drawing.Image)(resources.GetObject("pbQRCode.Image")));
             this.pbQRCode.Location = new System.Drawing.Point(16, 152);
             this.pbQRCode.Name = "pbQRCode";
             this.pbQRCode.Size = new System.Drawing.Size(300, 300);
+            this.pbQRCode.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pbQRCode.TabIndex = 6;
             this.pbQRCode.TabStop = false;
             this.pbQRCode.DoubleClick += new System.EventHandler(this.pbQRCode_DoubleClick);

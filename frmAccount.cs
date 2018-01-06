@@ -245,7 +245,8 @@ namespace Authentiqr.NET
             }
             else
             {
-                pbQRCode.Image = null;
+                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAccount));
+                pbQRCode.Image = (Image)resources.GetObject("pbQRCode.Image");
             }
         }
 
@@ -268,7 +269,7 @@ namespace Authentiqr.NET
                     var queryString = HttpUtility.ParseQueryString(uri.Query);
                     var secret = queryString["secret"];
                     var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
-                    txtAccountName.Text = HttpUtility.UrlDecode(account);
+                    AccountName = HttpUtility.UrlDecode(account);
                     Key = secret;
                 }
                 else
@@ -302,7 +303,7 @@ namespace Authentiqr.NET
 
         private void ChooseIcon()
         {
-            pbIcon.Image = iconFinder.FindImage(txtAccountName.Text);
+            pbIcon.Image = iconFinder.FindImage(AccountName);
         }
 
         #endregion Methods
