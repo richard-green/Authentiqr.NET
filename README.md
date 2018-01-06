@@ -10,8 +10,11 @@ A simple system-tray application allowing you easy access to the 2-step authenti
 * UPlay
 * ProtonMail
 * Coinbase
+* Cryptonator
+* Binance
+* BitMEX
 
-... and any others that use the same standard OTP algorithm.
+... and any others that use the same standard Authenticator OTP algorithm.
 
 ![Example.png](https://raw.githubusercontent.com/richard-green/Authentiqr.NET/master/Example.png)
 

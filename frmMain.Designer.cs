@@ -103,6 +103,9 @@
             this.imageList.Images.SetKeyName(5, "uplay");
             this.imageList.Images.SetKeyName(6, "protonmail");
             this.imageList.Images.SetKeyName(7, "coinbase");
+            this.imageList.Images.SetKeyName(8, "binance");
+            this.imageList.Images.SetKeyName(9, "bitmex");
+            this.imageList.Images.SetKeyName(10, "cryptonator");
             // 
             // frmMain
             // 
