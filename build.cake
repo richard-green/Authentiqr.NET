@@ -80,6 +80,8 @@ Task("Build-Packages")
     };
 
     DotNetCorePack("./src/Authentiqr.Core/Authentiqr.Core.csproj", settings);
+
+    Zip("./src/Authentiqr.NET/bin/" + configuration, "./output/Authentiqr.NET-" + version.ToString() + ".zip");
 });
 
 //////////////////////////////////////////////////////////////////////
