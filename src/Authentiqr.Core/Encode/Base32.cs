@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Authentiqr.NET.Code.Encode
+namespace Authentiqr.Core.Encode
 {
     public class Base32
     {

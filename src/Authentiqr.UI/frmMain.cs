@@ -1,4 +1,5 @@
-﻿using Authentiqr.NET.Code;
+﻿using Authentiqr.Core;
+using Authentiqr.NET.Code;
 using Authentiqr.NET.Code.EncryptionV3;
 using Microsoft.Win32;
 using System;
@@ -19,7 +20,7 @@ namespace Authentiqr.NET
         #region Properties
 
         private Settings settings;
-        private PasscodeGenerator generator = new PasscodeGenerator();
+        private Authenticator generator = new Authenticator();
         private List<ToolStripItem> timeoutMenuItems = new List<ToolStripItem>();
 
         #endregion Properties
@@ -94,7 +95,7 @@ namespace Authentiqr.NET
 
                 if (settings.Accounts.ContainsKey(account))
                 {
-                    item.Text = generator.GenerateTimeoutCode(settings.Accounts[account]);
+                    item.Text = generator.GenerateCode(settings.Accounts[account]);
                 }
             }
         }
@@ -203,7 +204,7 @@ namespace Authentiqr.NET
         private void AddAccount(string accountName, SecureString key)
         {
             ToolStripItem accountMenuItem = new ToolStripMenuItem(accountName, FindImage(accountName), mnuAccount_Click);
-            ToolStripItem timeoutMenuItem = new ToolStripMenuItem(generator.GenerateTimeoutCode(key), null, mnuTimeoutMenuItem_Click);
+            ToolStripItem timeoutMenuItem = new ToolStripMenuItem(generator.GenerateCode(key), null, mnuTimeoutMenuItem_Click);
             ToolStripItem separator = new ToolStripSeparator();
 
             timeoutMenuItems.Add(timeoutMenuItem);

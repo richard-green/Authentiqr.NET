@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Authentiqr.Core;
+using System;
 using System.IO;
 using System.Linq;
 using System.Security;

@@ -1,4 +1,5 @@
-﻿using Authentiqr.NET.Code;
+﻿using Authentiqr.Core;
+using Authentiqr.NET.Code;
 using System;
 using System.Security;
 using System.Windows.Forms;

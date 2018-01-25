@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Authentiqr.NET</RootNamespace>
     <AssemblyName>Authentiqr.NET</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -51,9 +51,11 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="zxing, Version=0.14.0.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
-      <HintPath>packages\ZXing.Net.0.14.0.1\lib\net35\zxing.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="zxing, Version=0.16.2.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>packages\ZXing.Net.0.16.2\lib\net461\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.2.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>packages\ZXing.Net.0.16.2\lib\net461\zxing.presentation.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -62,13 +64,9 @@
     <Compile Include="Code\EncryptionV3\AesEncryptor.cs" />
     <Compile Include="Code\EncryptionV3\ChecksumFailureException.cs" />
     <Compile Include="Code\EncryptionV3\CryptoConfig.cs" />
-    <Compile Include="Code\Encode\Hex.cs" />
-    <Compile Include="Code\Encode\Base64.cs" />
-    <Compile Include="Code\Encode\Base32.cs" />
     <Compile Include="Code\EncryptionV1\EncryptionV1.cs" />
     <Compile Include="Code\EncryptionMode.cs" />
     <Compile Include="Code\EnumExtensions.cs" />
-    <Compile Include="Code\SecureStringExtensions.cs" />
     <Compile Include="Code\Settings.cs" />
     <Compile Include="Code\EncryptionV2\SymmetricEncryption.cs" />
     <Compile Include="frmAccount.cs">
@@ -95,7 +93,6 @@
     <Compile Include="frmPatternLock.Designer.cs">
       <DependentUpon>frmPatternLock.cs</DependentUpon>
     </Compile>
-    <Compile Include="Code\PasscodeGenerator.cs" />
     <Compile Include="IIconFinder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -141,10 +138,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Padlock.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Authentiqr.Core\Authentiqr.Core.csproj">
+      <Project>{f96a7964-0f52-4f77-ba09-83d386971db2}</Project>
+      <Name>Authentiqr.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

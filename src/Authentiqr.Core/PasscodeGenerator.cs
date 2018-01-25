@@ -1,12 +1,12 @@
-﻿using Authentiqr.NET.Code.Encode;
+﻿using Authentiqr.Core.Encode;
 using System;
 using System.IO;
 using System.Security;
 using System.Security.Cryptography;
 
-namespace Authentiqr.NET.Code
+namespace Authentiqr.Core
 {
-    public class PasscodeGenerator
+    public class Authenticator
     {
         // Original Java code from: http://blog.jcuff.net/2011/02/cli-java-based-google-authenticator.html
         // Converted to C# by Richard Green
@@ -14,27 +14,47 @@ namespace Authentiqr.NET.Code
         private int PassCodeLength { get; set; }
         private int Interval { get; set; }
         private int PinModulo { get; set; }
+        private Func<DateTime> Now { get; }
 
-        public PasscodeGenerator()
+        public Authenticator() : this(() => DateTime.Now)
+        {
+        }
+
+        public Authenticator(Func<DateTime> now)
         {
             Interval = 30;
             PassCodeLength = 6;
             PinModulo = (int)Math.Pow(10, PassCodeLength);
+            Now = now;
         }
 
-        public string GenerateTimeoutCode(SecureString password)
+        public string GenerateCode(SecureString password) => password.Use(p => GenerateCode(p));
+
+        public string GenerateCode(string password) => GenerateCode(password, CurrentInterval);
+
+        public bool ValidateCode(string code, SecureString password, int maxIntervals = 2) => password.Use(p => ValidateCode(code, p, maxIntervals));
+
+        public bool ValidateCode(string code, string password, int maxIntervals = 2)
         {
-            return password.Use(p => GenerateTimeoutCode(p));
+            var currentInterval = CurrentInterval;
+
+            for (int i = 0; i < maxIntervals; i++)
+            {
+                if (code == GenerateCode(password, currentInterval)) return true;
+                currentInterval--;
+            }
+
+            return false;
         }
 
-        public string GenerateTimeoutCode(string password)
+        private string GenerateCode(string password, long currentInterval)
         {
             byte[] key = Base32.FromBase32String(password);
             string keyStr = Hex.Encode(key);
             HMACSHA1 Mac = new HMACSHA1();
             Mac.Key = key;
 
-            byte[] challenge = Reverse(BitConverter.GetBytes(CurrentInterval));
+            byte[] challenge = Reverse(BitConverter.GetBytes(currentInterval));
             byte[] hash = Mac.ComputeHash(challenge);
 
             string hashStr = Hex.Encode(hash);
@@ -47,7 +67,7 @@ namespace Authentiqr.NET.Code
             int truncatedHash = result & 0x7FFFFFFF;
             int pinValue = truncatedHash % PinModulo;
 
-            return pinValue.ToString(new String('0', 6));
+            return pinValue.ToString(new String('0', PassCodeLength));
         }
 
         private int HashToInt(byte[] bytes, int start)
@@ -74,17 +94,11 @@ namespace Authentiqr.NET.Code
             return result;
         }
 
-        private static long UnixSeconds(DateTime stamp)
+        private long CurrentInterval => UnixSeconds(Now()) / Interval;
+
+        private long UnixSeconds(DateTime stamp)
         {
             return (long)(stamp.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
-        }
-
-        public long CurrentInterval
-        {
-            get
-            {
-                return UnixSeconds(DateTime.Now) / Interval;
-            }
         }
     }
 }

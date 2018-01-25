@@ -1,4 +1,5 @@
-﻿using Authentiqr.NET.Code.Encode;
+﻿using Authentiqr.Core;
+using Authentiqr.Core.Encode;
 using System;
 using System.IO;
 using System.Linq;

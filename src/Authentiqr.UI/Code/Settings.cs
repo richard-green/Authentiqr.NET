@@ -1,4 +1,5 @@
-﻿using Authentiqr.NET.Code.Encode;
+﻿using Authentiqr.Core;
+using Authentiqr.Core.Encode;
 using Authentiqr.NET.Code.EncryptionV2;
 using Authentiqr.NET.Code.EncryptionV3;
 using Microsoft.Win32;

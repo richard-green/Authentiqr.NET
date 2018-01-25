@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Authentiqr.NET.Code
+namespace Authentiqr.Core
 {
     public static class SecureStringExtensions
     {

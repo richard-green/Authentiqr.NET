@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
 using Authentiqr.NET.Code;
+using Authentiqr.Core;
 
 namespace Authentiqr.NET
 {
@@ -16,7 +17,7 @@ namespace Authentiqr.NET
 
         private Settings settings;
         private bool constructing = true;
-        private PasscodeGenerator generator = new PasscodeGenerator();
+        private Authenticator generator = new Authenticator();
         private IIconFinder iconFinder;
 
         public string AccountName
@@ -53,7 +54,7 @@ namespace Authentiqr.NET
                         return;
                     }
 
-                    lblCode.Text = generator.GenerateTimeoutCode(txtKey.Text);
+                    lblCode.Text = generator.GenerateCode(txtKey.Text);
                     IsKeyValid = true;
                     tmrMain.Enabled = true;
                     txtKey.ForeColor = Color.Black;
@@ -108,7 +109,7 @@ namespace Authentiqr.NET
         {
             if (IsKeyValid)
             {
-                lblCode.Text = generator.GenerateTimeoutCode(Key);
+                lblCode.Text = generator.GenerateCode(Key);
             }
             else
             {
