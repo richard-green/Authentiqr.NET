@@ -106,6 +106,7 @@
             this.imageList.Images.SetKeyName(8, "binance");
             this.imageList.Images.SetKeyName(9, "bitmex");
             this.imageList.Images.SetKeyName(10, "cryptonator");
+            this.imageList.Images.SetKeyName(11, "reddit");
             // 
             // frmMain
             // 
