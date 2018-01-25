@@ -11,10 +11,10 @@ namespace Authentiqr.Core
         // Original Java code from: http://blog.jcuff.net/2011/02/cli-java-based-google-authenticator.html
         // Converted to C# by Richard Green
 
-        private int PassCodeLength { get; set; }
-        private int Interval { get; set; }
-        private int PinModulo { get; set; }
-        private Func<DateTime> Now { get; }
+        private int PassCodeLength;
+        private int Interval;
+        private int PinModulo;
+        private Func<DateTime> Now;
 
         public Authenticator() : this(() => DateTime.Now)
         {
@@ -28,20 +28,44 @@ namespace Authentiqr.Core
             Now = now;
         }
 
-        public string GenerateCode(SecureString password) => password.Use(p => GenerateCode(p));
+        /// <summary>
+        /// Generate a code based on a Base32-encoded password
+        /// </summary>
+        /// <param name="password">Base32-encoded</param>
+        /// <returns>6-digit code string</returns>
+        public string GenerateCode(SecureString password) => password.Use(pwd => GenerateCode(pwd, CurrentInterval));
 
+        /// <summary>
+        /// Generate a code based on a Base32-encoded password
+        /// </summary>
+        /// <param name="password">Base32-encoded</param>
+        /// <returns>6-digit code string</returns>
         public string GenerateCode(string password) => GenerateCode(password, CurrentInterval);
 
+        /// <summary>
+        /// Validate a code given the Base32-encoded password used to generate it
+        /// </summary>
+        /// <param name="code">6-digit code string</param>
+        /// <param name="password">Base32-encoded</param>
+        /// <param name="maxIntervals">Number of intervals to check ahead and backwards in time if the code is not found in the current time window</param>
+        /// <returns></returns>
         public bool ValidateCode(string code, SecureString password, int maxIntervals = 2) => password.Use(p => ValidateCode(code, p, maxIntervals));
 
+        /// <summary>
+        /// Validate a code given the Base32-encoded password used to generate it
+        /// </summary>
+        /// <param name="code">6-digit code string</param>
+        /// <param name="password">Base32-encoded</param>
+        /// <param name="maxIntervals">Number of intervals to check forward and backwards in time around the current time window</param>
+        /// <returns></returns>
         public bool ValidateCode(string code, string password, int maxIntervals = 2)
         {
-            var currentInterval = CurrentInterval;
+            var currentInterval = CurrentInterval - maxIntervals;
 
-            for (int i = 0; i < maxIntervals; i++)
+            for (int i = 0; i <= maxIntervals * maxIntervals; i++)
             {
                 if (code == GenerateCode(password, currentInterval)) return true;
-                currentInterval--;
+                currentInterval++;
             }
 
             return false;

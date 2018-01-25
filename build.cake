@@ -4,6 +4,7 @@
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
+var version = new Version("2.1.4");
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
@@ -14,7 +15,7 @@ var configuration = Argument("configuration", "Release");
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectory(Directory("./src/Authentiqr.UI/bin") + Directory(configuration));
+    CleanDirectory(Directory("./src/Authentiqr.NET/bin") + Directory(configuration));
     CleanDirectory(Directory("./src/Authentiqr.Core/bin") + Directory(configuration));
 });
 
@@ -25,7 +26,22 @@ Task("Restore-NuGet-Packages")
     NuGetRestore("./src/Authentiqr.NET.sln");
 });
 
+Task("Solution-Info")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    var file = "./src/SolutionInfo.cs";
+    CreateAssemblyInfo(file, new AssemblyInfoSettings {
+        Product = "Authentiqr.NET",
+        Version = version.ToString(),
+        FileVersion = version.ToString(),
+        InformationalVersion = version.ToString(),
+        Copyright = string.Format("Copyright (c) Richard Green 2011 - {0}", DateTime.Now.Year)
+    });
+});
+
 Task("Build")
+    .IsDependentOn("Solution-Info")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() =>
 {
@@ -49,34 +65,21 @@ Task("Run-Unit-Tests")
 {
     NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings {
         NoResults = true
-        });
+    });
 });
 
 Task("Build-Packages")
     .IsDependentOn("Restore-NuGet-Packages")
-	.IsDependentOn("Run-Unit-Tests")
+    .IsDependentOn("Run-Unit-Tests")
     .Does(() =>
 {
-	var projects = GetFiles("./src/**/*.csproj") - GetFiles("./src/**/*.Tests.csproj");
+    var settings = new DotNetCorePackSettings {
+        NoBuild = true,
+        Configuration = configuration,
+        OutputDirectory = "./output"
+    };
 
-	var settings = new DotNetCorePackSettings {
-		NoBuild = true,
-		Configuration = configuration,
-		OutputDirectory = "./output",
-		ArgumentCustomization = (args) => {
-			var version = new Version("2.1.3");
-			return args
-				.Append("/p:Version={0}", version)
-				.Append("/p:AssemblyVersion={0}", version)
-				.Append("/p:FileVersion={0}", version)
-				.Append("/p:AssemblyInformationalVersion={0}", version);
-		}
-	};
-
-	foreach (var project in projects)
-	{
-		DotNetCorePack(project.ToString(), settings);
-	}
+    DotNetCorePack("./src/Authentiqr.Core/Authentiqr.Core.csproj", settings);
 });
 
 //////////////////////////////////////////////////////////////////////
