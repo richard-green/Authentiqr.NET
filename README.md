@@ -13,6 +13,7 @@ A simple system-tray application allowing you easy access to the 2-step authenti
 * Cryptonator
 * Binance
 * BitMEX
+* Reddit
 
 ... and any others that use the same standard Authenticator OTP algorithm.
 
