@@ -57,18 +57,26 @@ Task("Build-Packages")
 	.IsDependentOn("Run-Unit-Tests")
     .Does(() =>
 {
-    var nuGetPackSettings = new NuGetPackSettings
-	{
-		OutputDirectory = "./output/",
-		IncludeReferencedProjects = true,
-		Properties = new Dictionary<string, string>
-		{
-			{ "Configuration", "Release" }
+	var projects = GetFiles("./src/**/*.csproj") - GetFiles("./src/**/*.Tests.csproj");
+
+	var settings = new DotNetCorePackSettings {
+		NoBuild = true,
+		Configuration = configuration,
+		OutputDirectory = "./output",
+		ArgumentCustomization = (args) => {
+			var version = new Version("2.1.3");
+			return args
+				.Append("/p:Version={0}", version)
+				.Append("/p:AssemblyVersion={0}", version)
+				.Append("/p:FileVersion={0}", version)
+				.Append("/p:AssemblyInformationalVersion={0}", version);
 		}
 	};
 
-    MSBuild("./src/Authentiqr.Core/Authentiqr.Core.csproj", new MSBuildSettings().SetConfiguration("Release"));
-    NuGetPack("./src/Authentiqr.Core/Authentiqr.Core.csproj", nuGetPackSettings);
+	foreach (var project in projects)
+	{
+		DotNetCorePack(project.ToString(), settings);
+	}
 });
 
 //////////////////////////////////////////////////////////////////////
