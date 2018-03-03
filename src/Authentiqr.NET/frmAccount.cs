@@ -151,6 +151,20 @@ namespace Authentiqr.NET
             }
         }
 
+        private void txtAccountName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.Control && e.KeyCode == Keys.V) ||
+                (e.Shift && e.KeyCode == Keys.Insert))
+            {
+                var text = Clipboard.GetText();
+
+                if (ParseOtpAuth(text))
+                {
+                    e.SuppressKeyPress = true;
+                }
+            }
+        }
+
         private void txtAccountName_KeyUp(object sender, KeyEventArgs e)
         {
             RenderQRCode();
@@ -261,19 +275,7 @@ namespace Authentiqr.NET
 
             if (decoded != null)
             {
-                var text = decoded.Text;
-
-                var uri = new Uri(text);
-
-                if (uri.Scheme == "otpauth")
-                {
-                    var queryString = HttpUtility.ParseQueryString(uri.Query);
-                    var secret = queryString["secret"];
-                    var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
-                    AccountName = HttpUtility.UrlDecode(account);
-                    Key = secret;
-                }
-                else
+                if (!ParseOtpAuth(decoded.Text))
                 {
                     MessageBox.Show("The QR Code does not contain valid OAuth data", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -281,6 +283,23 @@ namespace Authentiqr.NET
             else
             {
                 MessageBox.Show("The QR Code could not be read", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool ParseOtpAuth(string text)
+        {
+            if (Uri.TryCreate(text, UriKind.Absolute, out var uri) && uri.Scheme.Equals("otpauth", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var queryString = HttpUtility.ParseQueryString(uri.Query);
+                var secret = queryString["secret"];
+                var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
+                AccountName = HttpUtility.UrlDecode(account);
+                Key = secret;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
