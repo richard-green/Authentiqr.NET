@@ -4,7 +4,7 @@
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
-var version = new Version("3.0.0");
+var version = new Version("3.1.0");
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
