@@ -1,5 +1,7 @@
 # Authentiqr.NET
 
+![Github All Releases](https://img.shields.io/github/downloads/richard-green/Authentiqr.NET/total.svg)
+
 A simple system-tray application allowing you easy access to the 2-step authentication auto-generated security keys for associated apps, including:
 
 * Google
