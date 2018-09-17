@@ -29,4 +29,4 @@ You can add accounts by either entering the code displayed in the website, or yo
 
 Every 30 seconds a new code will be generated, which you can get simply by going to the context menu and clicking on the numbers. This will copy the value into your clipboard.
 
-Have fun!
+Have fun!!!!
