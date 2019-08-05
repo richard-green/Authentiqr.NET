@@ -4,7 +4,6 @@ using Authentiqr.NET.Code.EncryptionV3;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Authentiqr.Core;
+using Authentiqr.NET.Code;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
-using Authentiqr.NET.Code;
-using Authentiqr.Core;
 
 namespace Authentiqr.NET
 {
