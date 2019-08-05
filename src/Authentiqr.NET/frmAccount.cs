@@ -293,8 +293,22 @@ namespace Authentiqr.NET
                 var queryString = HttpUtility.ParseQueryString(uri.Query);
                 var secret = queryString["secret"];
                 var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
-                AccountName = HttpUtility.UrlDecode(account);
+                var accountName = HttpUtility.UrlDecode(account);
+
+                if (accountName.Contains(':'))
+                {
+                    var accountDetailsCapture = new Regex(@"([^:]+):\s*([^\s]+)");
+                    var accountDetails = accountDetailsCapture.Match(accountName);
+
+                    if (accountDetails.Success)
+                    {
+                        accountName = $"{accountDetails.Groups[1].Value}: {accountDetails.Groups[2].Value}";
+                    }
+                }
+
+                AccountName = accountName;
                 Key = secret;
+
                 return true;
             }
             else
