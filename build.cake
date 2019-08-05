@@ -4,7 +4,7 @@
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
-var version = new Version("3.1.0");
+var version = new Version("3.2.0");
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
@@ -15,6 +15,7 @@ var configuration = Argument("configuration", "Release");
 Task("Clean")
     .Does(() =>
 {
+    CleanDirectory(Directory("./output"));
     CleanDirectory(Directory("./src/Authentiqr.NET/bin") + Directory(configuration));
     CleanDirectory(Directory("./src/Authentiqr.Core/bin") + Directory(configuration));
 });
