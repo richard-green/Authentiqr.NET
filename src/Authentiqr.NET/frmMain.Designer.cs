@@ -100,13 +100,14 @@
             this.imageList.Images.SetKeyName(2, "microsoft");
             this.imageList.Images.SetKeyName(3, "github");
             this.imageList.Images.SetKeyName(4, "dropbox");
-            this.imageList.Images.SetKeyName(5, "uplay");
-            this.imageList.Images.SetKeyName(6, "protonmail");
-            this.imageList.Images.SetKeyName(7, "coinbase");
-            this.imageList.Images.SetKeyName(8, "binance");
-            this.imageList.Images.SetKeyName(9, "bitmex");
-            this.imageList.Images.SetKeyName(10, "cryptonator");
-            this.imageList.Images.SetKeyName(11, "reddit");
+            this.imageList.Images.SetKeyName(5, "protonmail");
+            this.imageList.Images.SetKeyName(6, "coinbase");
+            this.imageList.Images.SetKeyName(7, "binance");
+            this.imageList.Images.SetKeyName(8, "bitmex");
+            this.imageList.Images.SetKeyName(9, "cryptonator");
+            this.imageList.Images.SetKeyName(10, "reddit");
+            this.imageList.Images.SetKeyName(11, "uplay");
+            this.imageList.Images.SetKeyName(12, "paypal");
             // 
             // frmMain
             // 
