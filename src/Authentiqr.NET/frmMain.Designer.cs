@@ -108,6 +108,8 @@
             this.imageList.Images.SetKeyName(10, "reddit");
             this.imageList.Images.SetKeyName(11, "uplay");
             this.imageList.Images.SetKeyName(12, "paypal");
+            this.imageList.Images.SetKeyName(13, "cex");
+            this.imageList.Images.SetKeyName(14, "kraken");
             // 
             // frmMain
             // 
