@@ -8,3 +8,4 @@ obj/
 *.ncrunchsolution
 *.csproj.user
 .vs
+*.user

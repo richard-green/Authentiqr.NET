@@ -12,9 +12,9 @@ namespace Authentiqr.NET
     public partial class frmPatternLock : Form
     {
         bool mouseDown = false;
-        List<int> pattern = new List<int>();
-        private Settings settings;
-        private bool constructing = true;
+        readonly List<int> pattern = new List<int>();
+        private readonly Settings settings;
+        private readonly bool constructing = true;
 
         public frmPatternLock(Settings settings)
         {

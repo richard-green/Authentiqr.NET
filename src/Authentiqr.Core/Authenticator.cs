@@ -11,10 +11,10 @@ namespace Authentiqr.Core
         // Original Java code from: http://blog.jcuff.net/2011/02/cli-java-based-google-authenticator.html
         // Converted to C# by Richard Green
 
-        private int PassCodeLength;
-        private int Interval;
-        private int PinModulo;
-        private Func<DateTime> Now;
+        private readonly int PassCodeLength;
+        private readonly int Interval;
+        private readonly int PinModulo;
+        private readonly Func<DateTime> Now;
 
         public Authenticator() : this(() => DateTime.Now)
         {
@@ -73,44 +73,41 @@ namespace Authentiqr.Core
 
         private string GenerateCode(string password, long currentInterval)
         {
-            byte[] key = Base32.FromBase32String(password);
-            string keyStr = Hex.Encode(key);
-            HMACSHA1 Mac = new HMACSHA1();
-            Mac.Key = key;
+            var key = Base32.FromBase32String(password);
+            var mac = new HMACSHA1
+            {
+                Key = key
+            };
 
-            byte[] challenge = Reverse(BitConverter.GetBytes(currentInterval));
-            byte[] hash = Mac.ComputeHash(challenge);
-
-            string hashStr = Hex.Encode(hash);
+            var challenge = Reverse(BitConverter.GetBytes(currentInterval));
+            var hash = mac.ComputeHash(challenge);
 
             // Dynamically truncate the hash
             // OffsetBits are the low order bits of the last byte of the hash
-            int offset = hash[hash.Length - 1] & 0xF;
+            var offset = hash[^1] & 0xF;
             // Grab a positive integer value starting at the given offset.
-            int result = HashToInt(hash, offset);
-            int truncatedHash = result & 0x7FFFFFFF;
-            int pinValue = truncatedHash % PinModulo;
+            var result = HashToInt(hash, offset);
+            var truncatedHash = result & 0x7FFFFFFF;
+            var pinValue = truncatedHash % PinModulo;
 
-            return pinValue.ToString(new String('0', PassCodeLength));
+            return pinValue.ToString(new string('0', PassCodeLength));
         }
 
-        private int HashToInt(byte[] bytes, int start)
+        private static int HashToInt(byte[] bytes, int start)
         {
-            using (BinaryReader input = new BinaryReader(new MemoryStream(bytes, start, bytes.Length - start)))
-            {
-                byte a = input.ReadByte();
-                byte b = input.ReadByte();
-                byte c = input.ReadByte();
-                byte d = input.ReadByte();
+            using var input = new BinaryReader(new MemoryStream(bytes, start, bytes.Length - start));
+            var a = input.ReadByte();
+            var b = input.ReadByte();
+            var c = input.ReadByte();
+            var d = input.ReadByte();
 
-                return ((int)a << 24) | ((int)b << 16) | ((int)c << 8) | (int)d;
-            }
+            return (a << 24) | (b << 16) | (c << 8) | d;
         }
 
-        private byte[] Reverse(byte[] array)
+        private static byte[] Reverse(byte[] array)
         {
-            byte[] result = new byte[array.Length];
-            int ix = 0;
+            var result = new byte[array.Length];
+            var ix = 0;
             for (int i = array.Length - 1; i >= 0; i--)
             {
                 result[ix++] = array[i];
@@ -120,7 +117,7 @@ namespace Authentiqr.Core
 
         private long CurrentInterval => UnixSeconds(Now()) / Interval;
 
-        private long UnixSeconds(DateTime stamp)
+        private static long UnixSeconds(DateTime stamp)
         {
             return (long)(stamp.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
         }

@@ -69,7 +69,7 @@ namespace Authentiqr.NET.Code
                     break;
             }
 
-            Locked = !String.IsNullOrEmpty(encryptedData);
+            Locked = !string.IsNullOrEmpty(encryptedData);
         }
 
         public void SaveSettings()
@@ -133,7 +133,7 @@ namespace Authentiqr.NET.Code
 
         private string Encrypt(string data)
         {
-            if (String.IsNullOrEmpty(data)) return String.Empty;
+            if (string.IsNullOrEmpty(data)) return string.Empty;
 
             EncryptionVersion = 3;
             EncryptionMode = EncryptionMode.Basic;
@@ -170,7 +170,7 @@ namespace Authentiqr.NET.Code
 
         private string Decrypt(string encData)
         {
-            if (String.IsNullOrEmpty(encData)) return String.Empty;
+            if (string.IsNullOrEmpty(encData)) return string.Empty;
 
             if (EncryptionVersion == 1)
             {
@@ -242,8 +242,8 @@ namespace Authentiqr.NET.Code
                     SaveSettings();
                     Registry.SetValue(@"HKEY_CURRENT_USER\Software\Authentiqr.NET", "AccountData", encryptedData, RegistryValueKind.String);
                     Registry.CurrentUser.DeleteSubKey(@"Software\LCGoogleApps");
-                    var startup = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "LCGoogleApps", String.Empty);
-                    if (startup != String.Empty)
+                    var startup = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "LCGoogleApps", string.Empty);
+                    if (startup != string.Empty)
                     {
                         RunOnWindowsStartup();
                         Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true).DeleteValue("LCGoogleApps");
@@ -252,7 +252,7 @@ namespace Authentiqr.NET.Code
             }
         }
 
-        public void RunOnWindowsStartup()
+        public static void RunOnWindowsStartup()
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Authentiqr.NET.exe");
             Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", "Authentiqr.NET", path, RegistryValueKind.String);

@@ -1,12 +1,17 @@
 ﻿using Authentiqr.Core;
 using Authentiqr.NET.Code;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
+using ZXing;
+using ZXing.Windows.Compatibility;
 
 namespace Authentiqr.NET
 {
@@ -14,10 +19,10 @@ namespace Authentiqr.NET
     {
         #region Properties
 
-        private Settings settings;
-        private bool constructing = true;
-        private Authenticator generator = new Authenticator();
-        private IIconFinder iconFinder;
+        private readonly Settings settings;
+        private readonly bool constructing = true;
+        private readonly Authenticator generator = new();
+        private readonly IIconFinder iconFinder;
 
         public string AccountName
         {
@@ -45,7 +50,7 @@ namespace Authentiqr.NET
 
                 try
                 {
-                    if (String.IsNullOrEmpty(txtKey.Text))
+                    if (string.IsNullOrEmpty(txtKey.Text))
                     {
                         lblCode.Text = "------";
                         IsKeyValid = false;
@@ -128,7 +133,7 @@ namespace Authentiqr.NET
             }
             else
             {
-                MessageBox.Show(String.Format("Invalid password, please try again:\r\n\r\n{0}", Message));
+                MessageBox.Show(string.Format("Invalid password, please try again:\r\n\r\n{0}", Message));
             }
         }
 
@@ -139,7 +144,7 @@ namespace Authentiqr.NET
 
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(String.Format("Are you sure you want to remove the following account?\r\n\r\n{0}", AccountName),
+            if (MessageBox.Show(string.Format("Are you sure you want to remove the following account?\r\n\r\n{0}", AccountName),
                                 "Remove Account",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Exclamation) == DialogResult.Yes)
@@ -185,13 +190,9 @@ namespace Authentiqr.NET
                 {
                     var filename = ((string[])e.Data.GetData("FileDrop"))[0];
 
-                    using (var image = Bitmap.FromFile(filename))
-                    {
-                        using (var bitmap = new Bitmap(image))
-                        {
-                            ReadBitmap(bitmap);
-                        }
-                    }
+                    using var image = Bitmap.FromFile(filename);
+                    using var bitmap = new Bitmap(image);
+                    ReadBitmap(bitmap);
                 }
             }
             catch (Exception ex)
@@ -214,7 +215,7 @@ namespace Authentiqr.NET
         {
             if (IsKeyValid)
             {
-                saveFileDialog.FileName = String.Format("{0}.png", AccountName);
+                saveFileDialog.FileName = string.Format("{0}.png", AccountName);
                 saveFileDialog.ShowDialog();
             }
         }
@@ -248,25 +249,26 @@ namespace Authentiqr.NET
         {
             if (IsKeyValid)
             {
-                var writer = new ZXing.BarcodeWriter
+                var writer = new BarcodeWriter
                 {
-                    Format = ZXing.BarcodeFormat.QR_CODE
+                    Format = BarcodeFormat.QR_CODE
                 };
 
-                var otpauth = String.Format("otpauth://totp/{0}?secret={1}", AccountName, Key);
-                var newBitmap = writer.Write(otpauth);
-                pbQRCode.Image = ResizeImage(newBitmap, new Size(300, 300));
+                var otpauth = string.Format("otpauth://totp/{0}?secret={1}", AccountName, Key);
+                var bitmap = writer.Write(otpauth);
+
+                pbQRCode.Image = ResizeImage(bitmap, new Size(300, 300));
             }
             else
             {
-                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAccount));
+                var resources = new ComponentResourceManager(typeof(frmAccount));
                 pbQRCode.Image = (Image)resources.GetObject("pbQRCode.Image");
             }
         }
 
         private void ReadBitmap(Bitmap bitmap)
         {
-            var reader = new ZXing.BarcodeReader();
+            var reader = new BarcodeReader();
             reader.Options.TryHarder = true;
             reader.AutoRotate = true;
 
@@ -291,7 +293,7 @@ namespace Authentiqr.NET
             {
                 var queryString = HttpUtility.ParseQueryString(uri.Query);
                 var secret = queryString["secret"];
-                var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath.Substring(1) : uri.LocalPath;
+                var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath[1..] : uri.LocalPath;
                 var accountName = HttpUtility.UrlDecode(account);
 
                 if (accountName.Contains(':'))
@@ -316,12 +318,12 @@ namespace Authentiqr.NET
             }
         }
 
-        private Bitmap ResizeImage(Bitmap imgToResize, Size size, InterpolationMode mode = InterpolationMode.NearestNeighbor)
+        private static Bitmap ResizeImage(Bitmap imgToResize, Size size, InterpolationMode mode = InterpolationMode.NearestNeighbor)
         {
             try
             {
-                Bitmap b = new Bitmap(size.Width, size.Height);
-                using (Graphics g = Graphics.FromImage((Image)b))
+                var b = new Bitmap(size.Width, size.Height);
+                using (Graphics g = Graphics.FromImage(b))
                 {
                     g.InterpolationMode = mode;
                     g.DrawImage(imgToResize, 0, 0, size.Width, size.Height);

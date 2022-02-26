@@ -28,11 +28,10 @@ namespace Authentiqr.NET.Code.EncryptionV1
 
         private static SymmetricAlgorithm GetCryptoAlgorithm()
         {
-            return new AesManaged()
-            {
-                Key = Hex.Decode(CryptoKey),
-                IV = Hex.Decode(CryptoIV)
-            };
+            var algorithm = Aes.Create();
+            algorithm.Key = Hex.Decode(CryptoKey);
+            algorithm.IV = Hex.Decode(CryptoIV);
+            return algorithm;
         }
 
         /// <summary>
@@ -43,9 +42,9 @@ namespace Authentiqr.NET.Code.EncryptionV1
         /// <returns></returns>
         public static SymmetricAlgorithm CreateCryptoAlgorithm(string key, string iv)
         {
-            AesManaged algorithm = new AesManaged();
-            byte[] keyHash = Hash(key);
-            byte[] ivHash = Hash(iv);
+            var algorithm = Aes.Create();
+            var keyHash = Hash(key);
+            var ivHash = Hash(iv);
             algorithm.Key = keyHash;
             algorithm.IV = ivHash.Take(algorithm.BlockSize / 8).ToArray();
             return algorithm;
@@ -59,9 +58,9 @@ namespace Authentiqr.NET.Code.EncryptionV1
         /// <returns></returns>
         public static SymmetricAlgorithm CreateCryptoAlgorithm(SecureString key, SecureString iv)
         {
-            AesManaged algorithm = new AesManaged();
-            byte[] keyHash = Hash(key);
-            byte[] ivHash = Hash(iv);
+            var algorithm = Aes.Create();
+            var keyHash = Hash(key);
+            var ivHash = Hash(iv);
             algorithm.Key = keyHash;
             algorithm.IV = ivHash.Take(algorithm.BlockSize / 8).ToArray();
             return algorithm;
@@ -77,19 +76,19 @@ namespace Authentiqr.NET.Code.EncryptionV1
             // Check arguments
             if (data == null || data.Length <= 0)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
             if (algorithm == null)
             {
-                throw new ArgumentNullException("algorithm");
+                throw new ArgumentNullException(nameof(algorithm));
             }
             if (algorithm.Key == null || algorithm.Key.Length <= 0)
             {
-                throw new ArgumentNullException("algorithm.Key");
+                throw new ArgumentOutOfRangeException(nameof(algorithm), "algorithm.Key is null or empty");
             }
             if (algorithm.IV == null || algorithm.IV.Length <= 0)
             {
-                throw new ArgumentNullException("algorithm.IV");
+                throw new ArgumentOutOfRangeException(nameof(algorithm), "algorithm.IV is null or empty");
             }
 
             byte[] encryptedData = null;
@@ -100,16 +99,14 @@ namespace Authentiqr.NET.Code.EncryptionV1
                 ICryptoTransform encryptor = algorithm.CreateEncryptor();
 
                 // Create the streams used for encryption
-                using (MemoryStream msEncrypt = new MemoryStream())
+                using var msEncrypt = new MemoryStream();
+                using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                 {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        // Write all data to the stream
-                        csEncrypt.Write(data, 0, data.Length);
-                    }
-
-                    encryptedData = msEncrypt.ToArray();
+                    // Write all data to the stream
+                    csEncrypt.Write(data, 0, data.Length);
                 }
+
+                encryptedData = msEncrypt.ToArray();
             }
             catch (Exception)
             {
@@ -129,19 +126,19 @@ namespace Authentiqr.NET.Code.EncryptionV1
             // Check arguments
             if (cipherText == null || cipherText.Length <= 0)
             {
-                throw new ArgumentNullException("cipherText");
+                throw new ArgumentNullException(nameof(cipherText));
             }
             if (algorithm == null)
             {
-                throw new ArgumentNullException("algorithm");
+                throw new ArgumentNullException(nameof(algorithm));
             }
             if (algorithm.Key == null || algorithm.Key.Length <= 0)
             {
-                throw new ArgumentNullException("algorithm.Key");
+                throw new ArgumentOutOfRangeException(nameof(algorithm), "algorithm.Key is null or empty");
             }
             if (algorithm.IV == null || algorithm.IV.Length <= 0)
             {
-                throw new ArgumentNullException("algorithm.IV");
+                throw new ArgumentNullException(nameof(algorithm), "algorithm.IV is null or empty");
             }
 
             string plaintext = null;
@@ -152,17 +149,11 @@ namespace Authentiqr.NET.Code.EncryptionV1
                 ICryptoTransform decryptor = algorithm.CreateDecryptor();
 
                 // Create the streams used for decryption
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                        {
-                            // Read the decrypted bytes from the decrypting stream and place them in a string
-                            plaintext = srDecrypt.ReadToEnd();
-                        }
-                    }
-                }
+                using var msDecrypt = new MemoryStream(cipherText);
+                using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+                using var srDecrypt = new StreamReader(csDecrypt);
+                // Read the decrypted bytes from the decrypting stream and place them in a string
+                plaintext = srDecrypt.ReadToEnd();
             }
             finally
             {

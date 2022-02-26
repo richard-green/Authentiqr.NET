@@ -19,8 +19,8 @@ namespace Authentiqr.NET
         #region Properties
 
         private Settings settings;
-        private Authenticator generator = new Authenticator();
-        private List<ToolStripItem> timeoutMenuItems = new List<ToolStripItem>();
+        private readonly Authenticator generator = new Authenticator();
+        private readonly List<ToolStripItem> timeoutMenuItems = new List<ToolStripItem>();
 
         #endregion Properties
 
@@ -115,59 +115,55 @@ namespace Authentiqr.NET
             string oldAccountName = accountMenuItem.Text;
             ToolStripItem timeoutMenuItem = accountMenuItem.Tag as ToolStripItem;
 
-            using (frmAccount form = new frmAccount(settings, this))
+            using frmAccount form = new frmAccount(settings, this);
+            form.ShowRemove(true);
+            form.AccountName = oldAccountName;
+            form.Key = settings.Accounts[oldAccountName].Use(p => p);
+            DialogResult result = form.ShowDialog(this);
+
+            if (result == DialogResult.OK)
             {
-                form.ShowRemove(true);
-                form.AccountName = oldAccountName;
-                form.Key = settings.Accounts[oldAccountName].Use(p => p);
-                DialogResult result = form.ShowDialog(this);
+                settings.Accounts.Remove(oldAccountName);
 
-                if (result == DialogResult.OK)
+                string accountName = form.AccountName;
+
+                if (string.IsNullOrEmpty(accountName) == false)
                 {
-                    settings.Accounts.Remove(oldAccountName);
+                    settings.Accounts[accountName] = new SecureString().AppendChars(form.Key);
 
-                    string accountName = form.AccountName;
-
-                    if (String.IsNullOrEmpty(accountName) == false)
-                    {
-                        settings.Accounts[accountName] = new SecureString().AppendChars(form.Key);
-
-                        accountMenuItem.Text = accountName;
-                        timeoutMenuItem.Tag = accountName;
-                    }
-                    else
-                    {
-                        timeoutMenuItems.Remove(timeoutMenuItem);
-                        var ix = contextMenu.Items.IndexOf(accountMenuItem);
-                        contextMenu.Items.RemoveAt(ix + 2); // remove separator
-                        contextMenu.Items.RemoveAt(ix + 1); // remove timeout password
-                        contextMenu.Items.RemoveAt(ix); // remove account name
-                    }
-
-                    settings.SaveSettings();
-                    settings.SaveAccounts();
+                    accountMenuItem.Text = accountName;
+                    timeoutMenuItem.Tag = accountName;
                 }
+                else
+                {
+                    timeoutMenuItems.Remove(timeoutMenuItem);
+                    var ix = contextMenu.Items.IndexOf(accountMenuItem);
+                    contextMenu.Items.RemoveAt(ix + 2); // remove separator
+                    contextMenu.Items.RemoveAt(ix + 1); // remove timeout password
+                    contextMenu.Items.RemoveAt(ix); // remove account name
+                }
+
+                settings.SaveSettings();
+                settings.SaveAccounts();
             }
         }
 
         private void mnuAddAccount_Click(object sender, EventArgs e)
         {
-            using (frmAccount form = new frmAccount(settings, this))
+            using frmAccount form = new frmAccount(settings, this);
+            DialogResult result = form.ShowDialog(this);
+
+            if (result == DialogResult.OK)
             {
-                DialogResult result = form.ShowDialog(this);
+                string password = Regex.Replace(form.Key, "\\s", "");
+                string accountName = form.AccountName;
 
-                if (result == DialogResult.OK)
-                {
-                    string password = Regex.Replace(form.Key, "\\s", "");
-                    string accountName = form.AccountName;
+                settings.Accounts[accountName] = new SecureString().AppendChars(password);
 
-                    settings.Accounts[accountName] = new SecureString().AppendChars(password);
+                settings.SaveSettings();
+                settings.SaveAccounts();
 
-                    settings.SaveSettings();
-                    settings.SaveAccounts();
-
-                    AddAccount(accountName, settings.Accounts[accountName]);
-                }
+                AddAccount(accountName, settings.Accounts[accountName]);
             }
         }
 
@@ -323,18 +319,14 @@ namespace Authentiqr.NET
 
         private SecureString GetPattern()
         {
-            using (frmPatternLock form = new frmPatternLock(settings))
-            {
-                return form.ShowDialog(this) == DialogResult.OK ? form.GetPattern() : null;
-            }
+            using frmPatternLock form = new frmPatternLock(settings);
+            return form.ShowDialog(this) == DialogResult.OK ? form.GetPattern() : null;
         }
 
         private SecureString GetPassword(string prompt = "Enter Password")
         {
-            using (frmPassword form = new frmPassword(settings, prompt))
-            {
-                return form.ShowDialog(this) == DialogResult.OK ? form.GetPassword() : null;
-            }
+            using frmPassword form = new frmPassword(settings, prompt);
+            return form.ShowDialog(this) == DialogResult.OK ? form.GetPassword() : null;
         }
 
         private SecureString CreatePassword()
@@ -372,7 +364,7 @@ namespace Authentiqr.NET
 
             if (response == DialogResult.Yes)
             {
-                settings.RunOnWindowsStartup();
+                Settings.RunOnWindowsStartup();
             }
 
             settings.StartupPrompt = false;

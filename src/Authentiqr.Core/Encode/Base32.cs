@@ -24,7 +24,7 @@ namespace Authentiqr.Core.Encode
         private Dictionary<string, uint> _index;
 
         // alphabets may be used with varying case sensitivity, thus index must not ignore case
-        private static Dictionary<string, Dictionary<string, uint>> _indexes = new Dictionary<string, Dictionary<string, uint>>(2, StringComparer.InvariantCulture);
+        private static readonly Dictionary<string, Dictionary<string, uint>> _indexes = new(2, StringComparer.InvariantCulture);
 
         /// <summary>
         /// Create case insensitive encoder/decoder using the standard base32 alphabet without padding.
@@ -107,21 +107,21 @@ namespace Authentiqr.Core.Encode
 
         public string Encode(byte[] data)
         {
-            StringBuilder result = new StringBuilder(Math.Max((int)Math.Ceiling(data.Length * 8 / 5.0), 1));
+            var result = new StringBuilder(Math.Max((int)Math.Ceiling(data.Length * 8 / 5.0), 1));
 
-            byte[] emptyBuff = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-            byte[] buff = new byte[8];
+            var emptyBuff = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+            var buff = new byte[8];
 
             // take input five bytes at a time to chunk it up for encoding
-            for (int i = 0; i < data.Length; i += 5)
+            for (var i = 0; i < data.Length; i += 5)
             {
-                int bytes = Math.Min(data.Length - i, 5);
+                var bytes = Math.Min(data.Length - i, 5);
 
                 // parse five bytes at a time using an 8 byte ulong
                 Array.Copy(emptyBuff, buff, emptyBuff.Length);
                 Array.Copy(data, i, buff, buff.Length - (bytes + 1), bytes);
                 Array.Reverse(buff);
-                ulong val = BitConverter.ToUInt64(buff, 0);
+                var val = BitConverter.ToUInt64(buff, 0);
 
                 for (int bitOffset = ((bytes + 1) * 8) - 5; bitOffset > 3; bitOffset -= 5)
                 {
@@ -157,29 +157,27 @@ namespace Authentiqr.Core.Encode
             // index the alphabet for decoding only when needed
             EnsureAlphabetIndexed();
 
-            MemoryStream ms = new MemoryStream(Math.Max((int)Math.Ceiling(input.Length * 5 / 8.0), 1));
+            var ms = new MemoryStream(Math.Max((int)Math.Ceiling(input.Length * 5 / 8.0), 1));
 
             // take input eight bytes at a time to chunk it up for encoding
             for (int i = 0; i < input.Length; i += 8)
             {
-                int chars = Math.Min(input.Length - i, 8);
+                var chars = Math.Min(input.Length - i, 8);
+                var bytes = (int)Math.Floor(chars * (5 / 8.0));
 
                 ulong val = 0;
 
-                int bytes = (int)Math.Floor(chars * (5 / 8.0));
-
                 for (int charOffset = 0; charOffset < chars; charOffset++)
                 {
-                    uint cbyte;
-                    if (!_index.TryGetValue(input.Substring(i + charOffset, 1), out cbyte))
+                    if (!_index.TryGetValue(input.Substring(i + charOffset, 1), out uint cbyte))
                     {
-                        throw new ArgumentException("Invalid character '" + input.Substring(i + charOffset, 1) + "' in base32 string, valid characters are: " + _alphabet);
+                        throw new ArgumentException(string.Concat("Invalid character '", input.AsSpan(i + charOffset, 1), "' in base32 string, valid characters are: ", _alphabet));
                     }
 
-                    val |= (((ulong)cbyte) << ((((bytes + 1) * 8) - (charOffset * 5)) - 5));
+                    val |= ((ulong)cbyte) << (((bytes + 1) * 8) - (charOffset * 5) - 5);
                 }
 
-                byte[] buff = BitConverter.GetBytes(val);
+                var buff = BitConverter.GetBytes(val);
                 Array.Reverse(buff);
                 ms.Write(buff, buff.Length - (bytes + 1), bytes);
             }
@@ -191,11 +189,9 @@ namespace Authentiqr.Core.Encode
         {
             if (_index == null)
             {
-                Dictionary<string, uint> cidx;
-
                 string indexKey = (IsCaseSensitive ? "S" : "I") + _alphabet;
 
-                if (!_indexes.TryGetValue(indexKey, out cidx))
+                if (!_indexes.TryGetValue(indexKey, out Dictionary<string, uint> cidx))
                 {
                     lock (_indexes)
                     {

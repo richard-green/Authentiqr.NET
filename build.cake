@@ -4,7 +4,7 @@
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
-var version = new Version("3.2.0");
+var version = new Version("6.0.0");
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
@@ -74,13 +74,13 @@ Task("Build-Packages")
     .IsDependentOn("Run-Unit-Tests")
     .Does(() =>
 {
-    var settings = new DotNetCorePackSettings {
+    var settings = new DotNetPackSettings {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "./output"
     };
 
-    DotNetCorePack("./src/Authentiqr.Core/Authentiqr.Core.csproj", settings);
+    DotNetPack("./src/Authentiqr.Core/Authentiqr.Core.csproj", settings);
 
     Zip("./src/Authentiqr.NET/bin/" + configuration, "./output/Authentiqr.NET-" + version.ToString() + ".zip");
 });

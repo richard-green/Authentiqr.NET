@@ -6,8 +6,8 @@
 using System.Reflection;
 
 [assembly: AssemblyProduct("Authentiqr.NET")]
-[assembly: AssemblyVersion("3.2.0")]
-[assembly: AssemblyFileVersion("3.2.0")]
-[assembly: AssemblyInformationalVersion("3.2.0")]
-[assembly: AssemblyCopyright("Copyright (c) Richard Green 2011 - 2020")]
+[assembly: AssemblyVersion("6.0.0")]
+[assembly: AssemblyFileVersion("6.0.0")]
+[assembly: AssemblyInformationalVersion("6.0.0")]
+[assembly: AssemblyCopyright("Copyright (c) Richard Green 2011 - 2022")]
 

@@ -14,9 +14,9 @@ namespace Authentiqr.NET.Code
         {
             get
             {
-                return String.Join("*", this.Select(account =>
+                return string.Join("*", this.Select(account =>
                     account.Value.Use(password =>
-                        String.Format("{0}@{1}",
+                        string.Format("{0}@{1}",
                                       Base64.Encode(Encoding.UTF8.GetBytes(account.Key)),
                                       Base64.Encode(Encoding.UTF8.GetBytes(password))))));
             }
@@ -24,7 +24,7 @@ namespace Authentiqr.NET.Code
 
         public static AccountData Parse(string data)
         {
-            if (String.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(data))
             {
                 return new AccountData();
             }

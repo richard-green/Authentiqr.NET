@@ -8,8 +8,8 @@ namespace Authentiqr.NET
 {
     public partial class frmPassword : Form
     {
-        private bool constructing = true;
-        private Settings settings;
+        private readonly bool constructing = true;
+        private readonly Settings settings;
 
         public frmPassword(Settings settings, string prompt)
         {

@@ -6,14 +6,14 @@ namespace Authentiqr.Core.Encode
     {
         public static string Encode(byte[] data)
         {
-            return BitConverter.ToString(data).Replace("-", String.Empty).ToLower();
+            return BitConverter.ToString(data).Replace("-", string.Empty).ToLower();
         }
 
         public static byte[] Decode(string hex)
         {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
+            var length = hex.Length;
+            var bytes = new byte[length / 2];
+            for (int i = 0; i < length; i += 2)
             {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             }
