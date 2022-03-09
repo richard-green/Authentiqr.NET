@@ -14,10 +14,10 @@ namespace Authentiqr.NET
     {
         #region Properties
 
-        private Settings settings;
-        private bool constructing = true;
-        private Authenticator generator = new Authenticator();
-        private IIconFinder iconFinder;
+        private readonly Settings settings;
+        private readonly Authenticator generator = new Authenticator();
+        private readonly IIconFinder iconFinder;
+        private readonly bool constructing = true;
 
         public string AccountName
         {
@@ -232,6 +232,11 @@ namespace Authentiqr.NET
                 settings.AccountWindowLeft = this.Left;
                 settings.SaveSettings();
             }
+        }
+
+        private void lblCode_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(lblCode.Text);
         }
 
         #endregion User Events

@@ -93,9 +93,10 @@
             this.lblCode.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCode.Location = new System.Drawing.Point(12, 110);
             this.lblCode.Name = "lblCode";
-            this.lblCode.Size = new System.Drawing.Size(105, 32);
+            this.lblCode.Size = new System.Drawing.Size(104, 32);
             this.lblCode.TabIndex = 2;
             this.lblCode.Text = "123456";
+            this.lblCode.Click += new System.EventHandler(this.lblCode_Click);
             // 
             // btnOK
             // 
