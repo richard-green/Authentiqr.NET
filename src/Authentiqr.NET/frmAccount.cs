@@ -160,11 +160,40 @@ namespace Authentiqr.NET
             if ((e.Control && e.KeyCode == Keys.V) ||
                 (e.Shift && e.KeyCode == Keys.Insert))
             {
-                var text = Clipboard.GetText();
-
-                if (ParseOtpAuth(text))
+                try
                 {
-                    e.SuppressKeyPress = true;
+                    if (Clipboard.ContainsText())
+                    {
+                        var text = Clipboard.GetText();
+
+                        if (ParseOtpAuth(text))
+                        {
+                            e.SuppressKeyPress = true;
+                        }
+                    }
+                    else if (Clipboard.ContainsImage())
+                    {
+                        var image = Clipboard.GetImage();
+
+                        ReadBitmap(new Bitmap(image));
+
+                        e.SuppressKeyPress = true;
+                    }
+                    else if (Clipboard.ContainsFileDropList())
+                    {
+                        var files = Clipboard.GetFileDropList();
+                        var filename = files[0];
+
+                        using var image = Image.FromFile(filename);
+                        using var bitmap = new Bitmap(image);
+                        ReadBitmap(bitmap);
+
+                        e.SuppressKeyPress = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Failed to paste from clipboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -190,7 +219,7 @@ namespace Authentiqr.NET
                 {
                     var filename = ((string[])e.Data.GetData("FileDrop"))[0];
 
-                    using var image = Bitmap.FromFile(filename);
+                    using var image = Image.FromFile(filename);
                     using var bitmap = new Bitmap(image);
                     ReadBitmap(bitmap);
                 }
