@@ -90,12 +90,14 @@
             // 
             this.lblCode.AutoSize = true;
             this.lblCode.BackColor = System.Drawing.Color.White;
-            this.lblCode.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCode.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblCode.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblCode.Location = new System.Drawing.Point(12, 110);
             this.lblCode.Name = "lblCode";
             this.lblCode.Size = new System.Drawing.Size(105, 32);
             this.lblCode.TabIndex = 2;
             this.lblCode.Text = "123456";
+            this.lblCode.Click += new System.EventHandler(this.lblCode_Click);
             // 
             // btnOK
             // 
@@ -189,7 +191,7 @@
             this.Controls.Add(this.txtAccountName);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.MaximizeBox = false;

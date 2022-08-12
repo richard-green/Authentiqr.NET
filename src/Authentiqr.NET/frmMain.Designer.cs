@@ -93,6 +93,7 @@
             // 
             // imageList
             // 
+            this.imageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList.Images.SetKeyName(0, "facebook");
@@ -110,13 +111,14 @@
             this.imageList.Images.SetKeyName(12, "paypal");
             this.imageList.Images.SetKeyName(13, "cex");
             this.imageList.Images.SetKeyName(14, "kraken");
+            this.imageList.Images.SetKeyName(15, "15below");
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(212, 76);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = global::Authentiqr.NET.Resources.Padlock;
             this.Location = new System.Drawing.Point(-1000, 0);

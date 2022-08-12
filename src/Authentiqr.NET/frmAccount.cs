@@ -235,6 +235,11 @@ namespace Authentiqr.NET
             }
         }
 
+        private void lblCode_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(lblCode.Text);
+        }
+
         #endregion User Events
 
         #region Methods
@@ -293,6 +298,7 @@ namespace Authentiqr.NET
             {
                 var queryString = HttpUtility.ParseQueryString(uri.Query);
                 var secret = queryString["secret"];
+                var issuer = queryString["issuer"];
                 var account = uri.LocalPath.StartsWith("/") ? uri.LocalPath[1..] : uri.LocalPath;
                 var accountName = HttpUtility.UrlDecode(account);
 
@@ -305,6 +311,10 @@ namespace Authentiqr.NET
                     {
                         accountName = $"{accountDetails.Groups[1].Value}: {accountDetails.Groups[2].Value}";
                     }
+                }
+                else if (!string.IsNullOrEmpty(issuer))
+                {
+                    accountName = $"{issuer} - {accountName}";
                 }
 
                 AccountName = accountName;
