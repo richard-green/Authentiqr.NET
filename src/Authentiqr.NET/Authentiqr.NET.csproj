@@ -15,6 +15,7 @@
   <PropertyGroup>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);CustomContentTarget</TargetsForTfmSpecificContentInPackage>
     <StartupObject>Authentiqr.NET.Program</StartupObject>
+    <ApplicationIcon>Padlock.ico</ApplicationIcon>
   </PropertyGroup>
   <Target Name="CustomContentTarget">
     <ItemGroup>
@@ -23,6 +24,9 @@
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
+  <ItemGroup>
+    <Content Include="Padlock.ico" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.10" />

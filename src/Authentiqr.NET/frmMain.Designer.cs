@@ -120,7 +120,7 @@
             this.ClientSize = new System.Drawing.Size(212, 76);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Icon = global::Authentiqr.NET.Resources.Padlock;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(-1000, 0);
             this.Name = "frmMain";
             this.ShowInTaskbar = false;
