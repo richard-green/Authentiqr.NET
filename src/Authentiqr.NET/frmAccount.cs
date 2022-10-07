@@ -1,4 +1,5 @@
 ﻿using Authentiqr.Core;
+using Authentiqr.Core.Encode;
 using Authentiqr.NET.Code;
 using System;
 using System.ComponentModel;
@@ -223,6 +224,15 @@ namespace Authentiqr.NET
                     using var bitmap = new Bitmap(image);
                     ReadBitmap(bitmap);
                 }
+                else if (formats.Contains("Text"))
+                {
+                    var text = (string)e.Data.GetData("Text");
+
+                    if (!ParseOtpAuth(text) && !ReadAsImage(text))
+                    {
+                        MessageBox.Show("Could not read QR Code", "Authentiqr.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -234,7 +244,8 @@ namespace Authentiqr.NET
         {
             var formats = e.Data.GetFormats();
 
-            if (formats.Contains("FileDrop"))
+            if (formats.Contains("FileDrop") ||
+                formats.Contains("Text"))
             {
                 e.Effect = DragDropEffects.Copy;
             }
@@ -352,6 +363,32 @@ namespace Authentiqr.NET
                 return true;
             }
             else
+            {
+                return false;
+            }
+        }
+
+        private bool ReadAsImage(string text)
+        {
+            try
+            {
+                // Text might be a base64 image
+                var match = Regex.Match(text, @"^data\:(?<MediaType>.*)(;base64)?,(?<Data>.*)$");
+
+                if (match.Success)
+                {
+                    var mediaType = match.Groups["MediaType"].Value;
+                    var data = match.Groups["Data"].Value;
+                    var imageBytes = Base64.Decode(data);
+                    var image = Image.FromStream(new MemoryStream(imageBytes));
+                    using var bitmap = new Bitmap(image);
+                    ReadBitmap(bitmap);
+                    return true;
+                }
+
+                return false;
+            }
+            catch
             {
                 return false;
             }
