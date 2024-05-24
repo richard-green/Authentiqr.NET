@@ -1,12 +1,10 @@
 ﻿using Authentiqr.Core;
 using Authentiqr.Core.Encode;
-using Authentiqr.NET.Code.EncryptionV2;
 using Authentiqr.NET.Code.EncryptionV3;
 using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Security;
-using System.Text;
 
 namespace Authentiqr.NET.Code
 {
@@ -172,32 +170,7 @@ namespace Authentiqr.NET.Code
         {
             if (string.IsNullOrEmpty(encData)) return string.Empty;
 
-            if (EncryptionVersion == 1)
-            {
-                var key = EncryptionMode == EncryptionMode.Pattern ? EncryptionV1.EncryptionV1.GeneratePasswordHash(pattern, userId) : userId;
-                var iv = new SecureString().AppendChars("LCGoogleApps");
-                var algorithm = EncryptionV1.EncryptionV1.CreateCryptoAlgorithm(key, iv);
-                return EncryptionV1.EncryptionV1.Decrypt(Base64.Decode(encData), algorithm);
-            }
-            else if (EncryptionVersion == 2)
-            {
-                var encBytes = Base64.Decode(encData);
-
-                switch (EncryptionMode)
-                {
-                    case EncryptionMode.Basic:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, userId));
-                    case EncryptionMode.Pattern:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, pattern.Concat(userId)));
-                    case EncryptionMode.Password:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password));
-                    case EncryptionMode.PatternAndPassword:
-                        return Encoding.UTF8.GetString(SymmetricEncryption.Decrypt(encBytes, password.Concat(pattern)));
-                    default:
-                        throw new NotImplementedException("Encryption mode not supported: " + EncryptionMode);
-                }
-            }
-            else if (EncryptionVersion == 3)
+            if (EncryptionVersion == 3)
             {
                 var encBytes = Base64.Decode(encData);
 

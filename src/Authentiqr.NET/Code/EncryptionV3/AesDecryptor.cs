@@ -40,7 +40,7 @@ namespace Authentiqr.NET.Code.EncryptionV3
             // Extract the Salt
             byte[] saltBytes = bytes.Take(SaltSize).ToArray();
 
-            using var keyDerivationFunction = password.Use(p => new Rfc2898DeriveBytes(p, saltBytes, Iterations));
+            using var keyDerivationFunction = password.Use(p => new Rfc2898DeriveBytes(p, saltBytes, Iterations, HashAlgorithmName.SHA1));
             // Derive the previous IV from the Key and Salt
             var keyBytes = keyDerivationFunction.GetBytes(32);
             var ivBytes = keyDerivationFunction.GetBytes(16);

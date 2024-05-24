@@ -210,6 +210,9 @@ if (Test-Path $MODULES_PACKAGES_CONFIG) {
     Pop-Location
 }
 
+# Install Cake
+dotnet tool restore
+
 # Build Cake arguments
 $cakeArguments = @("$Script");
 if ($Target) { $cakeArguments += "-target=$Target" }

@@ -2,12 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
     <RootNamespace>Authentiqr.NET</RootNamespace>
-    <Version>6.0.0-local-0</Version>
-    <FileVersion>6.0.0.0</FileVersion>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <PackageVersion>6.0.0-local-0</PackageVersion>
+    <Version>8.0.0-local-0</Version>
+    <FileVersion>8.0.0.0</FileVersion>
+    <AssemblyVersion>8.0.0.0</AssemblyVersion>
+    <PackageVersion>8.0.0-local-0</PackageVersion>
     <CreateNugetPackage>true</CreateNugetPackage>
     <UseWindowsForms>true</UseWindowsForms>
     <OutputType>WinExe</OutputType>
@@ -28,8 +28,8 @@
     <Content Include="Padlock.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
-    <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.10" />
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+    <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.12" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Authentiqr.Core\Authentiqr.Core.csproj" />

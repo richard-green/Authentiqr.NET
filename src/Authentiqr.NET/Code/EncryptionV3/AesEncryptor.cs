@@ -35,7 +35,7 @@ namespace Authentiqr.NET.Code.EncryptionV3
             if (string.IsNullOrEmpty(data)) throw new ArgumentOutOfRangeException(nameof(data), "AesEncryptor.Encrypt: data cannot be null or empty");
 
             // Derive a new Salt and IV from the Key
-            using var keyDerivationFunction = password.Use(p => new Rfc2898DeriveBytes(p, SaltSize, Iterations));
+            using var keyDerivationFunction = password.Use(p => new Rfc2898DeriveBytes(p, SaltSize, Iterations, HashAlgorithmName.SHA1));
             var saltBytes = keyDerivationFunction.Salt;
             var keyBytes = keyDerivationFunction.GetBytes(32);
             var ivBytes = keyDerivationFunction.GetBytes(16);
